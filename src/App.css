@@ -1,0 +1,11 @@
+#root {
+    height: 100%;
+    width: 100%;
+}
+
+:root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
