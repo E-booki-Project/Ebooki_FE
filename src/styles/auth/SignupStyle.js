@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { typography } from "../typography";
+import { colors } from "../colors";
 
 export const Signup = styled.div`
     display: flex;
@@ -11,7 +12,7 @@ export const Signup = styled.div`
 
 export const SignupContainer = styled.div`
     width: 320px;
-    background-color: #ffffff;
+    background-color: ${colors.white};
     border: 1px solid #d9d9d9;
     margin-bottom: 18px;
     display: flex;
@@ -31,7 +32,7 @@ export const Form = styled.form`
 
 export const Profile = styled.div`
     border-radius: 9999px;
-    background-color: #f5f5f5;
+    background-color: ${colors.grayLighter};
     width: 64px;
     height: 64px;
     display: flex;
@@ -61,7 +62,7 @@ export const InputFeild = styled.input`
     border-radius: 8px;
     padding: 12px 16px;
     &::placeholder {
-        color: #b3b3b3;
+        color: ${colors.grayLight};
         ${typography.bodyBaseSingle};
     }
 `;
@@ -69,9 +70,9 @@ export const InputFeild = styled.input`
 export const SignupButton = styled.button`
     width: 272px;
     height: 40px;
-    background-color: #f2949c;
+    background-color: ${colors.coral};
     border: none;
     border-radius: 8px;
-    color: #ffffff;
+    color: ${colors.white};
     ${typography.bodyBaseSingle};
 `;

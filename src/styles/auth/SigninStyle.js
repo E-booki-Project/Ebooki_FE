@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { typography } from "../typography";
+import { colors } from "../colors";
 
 export const Signin = styled.div`
     display: flex;
@@ -11,7 +12,7 @@ export const Signin = styled.div`
 
 export const EmailContainer = styled.div`
     width: 320px;
-    background-color: #ffffff;
+    background-color: ${colors.white};
     border: 1px solid #d9d9d9;
     margin-bottom: 18px;
     display: flex;
@@ -45,7 +46,7 @@ export const InputFeild = styled.input`
     border-radius: 8px;
     padding: 12px 16px;
     &::placeholder {
-        color: #b3b3b3;
+        color: ${colors.grayLight};
         ${typography.bodyBaseSingle};
     }
 `;
@@ -53,22 +54,22 @@ export const InputFeild = styled.input`
 export const SigninButton = styled.button`
     width: 272px;
     height: 40px;
-    background-color: #f2949c;
+    background-color: ${colors.coral};
     border: none;
     border-radius: 8px;
-    color: #ffffff;
+    color: ${colors.white};
     ${typography.bodyBaseSingle};
 `;
 
 export const ForgotPassword = styled.div`
-    color: #757575;
+    color: ${colors.grayDark};
     ${typography.bodyLink};
     cursor: pointer;
 `;
 
 export const SocialContainer = styled.div`
     width: 320px;
-    background-color: #ffffff;
+    background-color: ${colors.white};
     border: 1px solid #d9d9d9;
     display: flex;
     flex-direction: column;
