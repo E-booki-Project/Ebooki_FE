@@ -13,7 +13,7 @@ export const ForgotPassword = styled.div`
 export const PasswordContainer = styled.div`
     width: 320px;
     background-color: ${colors.white};
-    border: 1px solid #d9d9d9;
+    border: 1px solid ${colors.grayMedium};
     margin-bottom: 18px;
     display: flex;
     flex-direction: column;
@@ -43,7 +43,7 @@ export const InputLabel = styled.label`
 export const InputFeild = styled.input`
     width: 272px;
     height: 40px;
-    border: 1px solid #d9d9d9;
+    border: 1px solid ${colors.grayMedium};
     border-radius: 8px;
     padding: 12px 16px;
     &::placeholder {
