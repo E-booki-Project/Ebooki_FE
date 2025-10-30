@@ -21,7 +21,7 @@ export const typography = {
     bodyStrong: css`
         font-size: 16px;
         line-height: 140%;
-        font-weight: 700;
+        font-weight: 600;
     `,
 
     bodySmall: css`
