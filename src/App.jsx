@@ -10,6 +10,7 @@ import Reader from "./pages/books/Reader";
 import Invite from "./pages/team/Invite";
 import Join from "./pages/team/Join";
 import Pricing from "./pages/pricing/Pricing";
+import Search from "./pages/books/Search";
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/invite/:teamId" element={<Invite />} />
                 <Route path="/join/:teamId" element={<Join />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/books/search" element={<Search />} />
             </Routes>
         </div>
     );
