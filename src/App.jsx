@@ -11,6 +11,7 @@ import Invite from "./pages/team/Invite";
 import Join from "./pages/team/Join";
 import Pricing from "./pages/pricing/Pricing";
 import Search from "./pages/books/Search";
+import Home from "./pages/home/Home";
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/join/:teamId" element={<Join />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/books/search" element={<Search />} />
+                <Route path="/" element={<Home />} />
             </Routes>
         </div>
     );
