@@ -26,18 +26,22 @@ function Pricing() {
                         </P.PlanWrapper>
                     </P.PlanHeader>
                     <P.PlanContent>
-                        <P.PlanDesc>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            3권을 읽을 수 있어요
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>
+                                3한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
+                            <P.PlanDesc>
+                                한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
                     </P.PlanContent>
                     <P.PlanButton>요금제 선택</P.PlanButton>
                 </P.PlanCard>
@@ -48,28 +52,33 @@ function Pricing() {
                         boxShadow: "0px 1px 4px rgba(12,12,13,0.05)",
                     }}
                 >
+                    <P.RecommendedTag>가장 추천하는 요금제</P.RecommendedTag>
                     <P.PlanHeader>
                         <P.PlanIcon />
                         <P.PlanWrapper>
                             <P.PlanName>요금제 이름</P.PlanName>
                             <P.PlanPrice>
-                                9,900<span> / 2+1 권</span>
+                                15,000<span> / 6+1 권</span>
                             </P.PlanPrice>
                         </P.PlanWrapper>
                     </P.PlanHeader>
-                    <P.PlanContent>
-                        <P.PlanDesc>
+                    <P.PlanContent style={{ marginTop: "88px" }}>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            3권을 읽을 수 있어요
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>
+                                3한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
+                            <P.PlanDesc>
+                                한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
                     </P.PlanContent>
                     <P.PlanButton>요금제 선택</P.PlanButton>
                 </P.PlanCard>
@@ -79,23 +88,27 @@ function Pricing() {
                         <P.PlanWrapper>
                             <P.PlanName>요금제 이름</P.PlanName>
                             <P.PlanPrice>
-                                9,900<span> / 2+1 권</span>
+                                21,000<span> / 9+3 권</span>
                             </P.PlanPrice>
                         </P.PlanWrapper>
                     </P.PlanHeader>
                     <P.PlanContent>
-                        <P.PlanDesc>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            3권을 읽을 수 있어요
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
-                        <P.PlanDesc>
+                            <P.PlanDesc>
+                                3한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            한달간 교환독서를 경험해봐요!
-                        </P.PlanDesc>
+                            <P.PlanDesc>
+                                한달간 교환독서를 경험해봐요!
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
                     </P.PlanContent>
                     <P.PlanButton>요금제 선택</P.PlanButton>
                 </P.PlanCard>
