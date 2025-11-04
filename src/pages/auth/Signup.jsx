@@ -2,11 +2,15 @@ import React from "react";
 import * as S from "../../styles/auth/SignupStyle";
 
 import plus from "../../assets/images/plus.png";
+import back from "../../assets/images/back.png";
 
 function signup() {
     return (
         <S.Signup>
             <S.SignupContainer>
+                <S.Header>
+                    <img src={back} />
+                </S.Header>
                 <S.Form>
                     <S.Profile>
                         <S.ProfileIcon src={plus} />

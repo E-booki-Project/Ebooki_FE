@@ -1,10 +1,15 @@
 import React from "react";
 import * as F from "../../styles/auth/ForgotPasswordStyle";
 
+import back from "../../assets/images/back.png";
+
 function ForgotPassword() {
     return (
         <F.ForgotPassword>
             <F.PasswordContainer>
+                <F.Header>
+                    <img src={back} />
+                </F.Header>
                 <F.Form>
                     <F.InputWrapper>
                         <F.InputLabel>이메일</F.InputLabel>

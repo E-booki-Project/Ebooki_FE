@@ -23,6 +23,12 @@ export const SignupContainer = styled.div`
     border-radius: 8px;
 `;
 
+export const Header = styled.div`
+    align-self: flex-start;
+    width: 24px;
+    height: 24px;
+`;
+
 export const Form = styled.form`
     display: flex;
     flex-direction: column;
