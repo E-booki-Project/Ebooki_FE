@@ -120,7 +120,6 @@ export const LinkButton = styled.button`
     color: ${colors.grayLighter};
     ${typography.bodyBaseSingle};
     background-color: ${colors.coral};
-    border: 1px solid ${colors.charcoal};
     border-radius: 8px;
     width: 99px;
     height: 40px;
