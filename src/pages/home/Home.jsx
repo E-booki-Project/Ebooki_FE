@@ -5,7 +5,7 @@ import LoggedOut from "../../components/LoggedOut";
 function Home() {
     return (
         <div>
-            <LoggedOut />
+            <LoggedIn />
         </div>
     );
 }
