@@ -9,7 +9,6 @@ export const List = styled.div`
 `;
 
 export const BookGrid = styled.div`
-    margin-top: 62px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     row-gap: 32px;
