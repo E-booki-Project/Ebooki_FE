@@ -97,6 +97,7 @@ export const CommentReaction = styled.div`
     flex-direction: row;
     gap: 8px;
     align-items: center;
+    margin-bottom: 8px;
 `;
 
 export const ReactionWrapper = styled.div`
@@ -113,18 +114,35 @@ export const ReactionIcon = styled.img`
 `;
 
 export const ReactionCount = styled.div`
-    color: ${colors.grayDark};
-    opacity: 50%;
+    color: ${({ $active }) => ($active ? colors.coral : colors.grayDark)};
+
+    opacity: ${({ $active }) => ($active ? "100%" : "50%")};
     ${typography.bodyBaseSingle};
     font-size: 11px;
     font-weight: 600;
 `;
 
-export const InputWrapper = styled.div``;
+export const InputWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: ${colors.grayLighter};
+    border-radius: 8px;
+    height: 36px;
+    padding: 12px 16px;
+    margin-top: 8px;
+`;
 
-export const Input = styled.input``;
+export const Input = styled.input`
+    border: none;
+    background-color: transparent;
+    color: ${colors.grayDark};
+    ${typography.bodyBaseSingle}
+    font-size: 12px;
+`;
 
 export const EnterIcon = styled.img`
     width: 20px;
     height: 20px;
+    margin-left: 4px;
 `;

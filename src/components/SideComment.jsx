@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import * as SC from "../styles/components/SideCommentStyle";
 
 import tape_pink from "../assets/images/tape_pink.png";
@@ -19,6 +19,8 @@ import thumbsup_coral from "../assets/images/thumbsup_coral.png";
 import enter from "../assets/images/enter.png";
 
 function SideComment() {
+    const [smileActive, setSmileActive] = useState(false);
+    const [thumbActive, setThumbActive] = useState(false);
     return (
         <SC.SideComment>
             <SC.Tape src={tape_pink} />
@@ -41,19 +43,33 @@ function SideComment() {
                         나에게도 다소 책임이 있을는지 모른다.
                     </SC.CommentText>
                     <SC.CommentReaction>
-                        <SC.ReactionWrapper>
-                            <SC.ReactionIcon src={smile_grey} />
-                            <SC.ReactionCount>2</SC.ReactionCount>
+                        <SC.ReactionWrapper
+                            onClick={() => setSmileActive((prev) => !prev)}
+                        >
+                            <SC.ReactionIcon
+                                src={smileActive ? smile_coral : smile_grey}
+                            />
+                            <SC.ReactionCount $active={smileActive}>
+                                2
+                            </SC.ReactionCount>
                         </SC.ReactionWrapper>
-                        <SC.ReactionWrapper>
-                            <SC.ReactionIcon src={thumbsup_grey} />
-                            <SC.ReactionCount>2</SC.ReactionCount>
+                        <SC.ReactionWrapper
+                            onClick={() => setThumbActive((prev) => !prev)}
+                        >
+                            <SC.ReactionIcon
+                                src={
+                                    thumbActive ? thumbsup_coral : thumbsup_grey
+                                }
+                            />
+                            <SC.ReactionCount $active={thumbActive}>
+                                2
+                            </SC.ReactionCount>
                         </SC.ReactionWrapper>
                     </SC.CommentReaction>
                 </SC.CommentContainer>
             </SC.Content>
             <SC.InputWrapper>
-                <SC.Input />
+                <SC.Input placeholder="답글 추가" />
                 <SC.EnterIcon src={enter} />
             </SC.InputWrapper>
         </SC.SideComment>
