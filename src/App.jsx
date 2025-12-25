@@ -12,6 +12,7 @@ import Join from "./pages/team/Join";
 import Pricing from "./pages/pricing/Pricing";
 import Search from "./pages/books/Search";
 import Home from "./pages/home/Home";
+import PaymentStatus from "./pages/pricing/PaymentStatus";
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/books/search" element={<Search />} />
                 <Route path="/" element={<Home />} />
+                <Route path="/payments/callback" element={<PaymentStatus />} />
             </Routes>
         </div>
     );
