@@ -35,4 +35,10 @@ export const typography = {
         line-height: 120%;
         font-weight: 400;
     `,
+
+    Heading: css`
+        font-size: 48px;
+        line-height: 120%;
+        font-weight: 700;
+    `,
 };
