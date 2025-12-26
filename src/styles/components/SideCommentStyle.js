@@ -25,9 +25,27 @@ export const Tape = styled.img`
 
 export const Content = styled.div`
     display: flex;
+    margin-bottom: 8px;
+    width: 100%;
+    max-height: 435px;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    overflow-x: hidden;
+
+    scrollbar-color: ${colors.grayLighter} transparent;
+    &::-webkit-scrollbar {
+        width: 4px;
+        opacity: 50%;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: ${colors.grayLighter};
+        border-radius: 4px;
+        opacity: 50%;
+    }
 `;
 
 export const BookQuotes = styled.div`
@@ -130,7 +148,6 @@ export const InputWrapper = styled.div`
     border-radius: 8px;
     height: 36px;
     padding: 12px 16px;
-    margin-top: 8px;
 `;
 
 export const Input = styled.input`
