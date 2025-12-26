@@ -6,14 +6,12 @@ export const Reader = styled.div`
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 32px;
 `;
 
 export const SideSection = styled.div`
     position: relative;
     width: 240px;
     flex-shrink: 0;
-    margin-top: -280px;
     z-index: 20;
 `;
 

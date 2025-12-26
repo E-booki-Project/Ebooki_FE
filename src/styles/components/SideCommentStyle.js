@@ -156,6 +156,18 @@ export const Input = styled.input`
     color: ${colors.grayDark};
     ${typography.bodyBaseSingle}
     font-size: 12px;
+    outline: none;
+    box-shadow: none;
+
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
 `;
 
 export const EnterIcon = styled.img`

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ePub from "epubjs";
 import * as R from "../../styles/books/ReaderStyle";
 import SideComment from "../../components/SideComment";
+import BookRatingModal from "../../components/BookRatingModal";
 
 function Reader() {
     const viewerRef = useRef(null);
@@ -13,8 +14,15 @@ function Reader() {
     // cfiRange -> { className, text }
     const highlightsRef = useRef(new Map());
 
-    const [activeSide, setActiveSide] = useState(null); // "left" | "right" | null
-    const [activeQuote, setActiveQuote] = useState("");
+    // ✅ 좌/우 코멘트 상태를 분리
+    const [leftOpen, setLeftOpen] = useState(false);
+    const [rightOpen, setRightOpen] = useState(false);
+    const [leftQuote, setLeftQuote] = useState("");
+    const [rightQuote, setRightQuote] = useState("");
+
+    // ✅ 평점 모달
+    const [isRatingOpen, setIsRatingOpen] = useState(false);
+    const locationRef = useRef(null);
 
     // 페이지 넘김 튐 방지
     const navLockRef = useRef(false);
@@ -64,7 +72,6 @@ function Reader() {
             } catch {}
         };
 
-        // ✅ 현재 화면에 떠있는 iframe들을 left 기준으로 정렬해서 얻기
         const getSortedIframes = () => {
             const container = viewerRef.current;
             if (!container) return [];
@@ -77,37 +84,29 @@ function Reader() {
                 );
         };
 
-        // ✅ 이벤트 좌표가 iframe 기준인지, 이미 전역(부모) 기준인지 자동 보정해서 "전역 clientX" 만들기
         const getGlobalClientX = (e, contentsFallback) => {
             if (!e) return null;
 
-            // 이벤트가 어느 document에서 왔는지
             const eventDoc =
                 e?.target?.ownerDocument || e?.currentTarget?.ownerDocument;
 
-            // iframe 찾기 (eventDoc가 iframe 문서일 때만 frameElement가 있음)
             const iframeEl =
                 eventDoc?.defaultView?.frameElement ||
                 contentsFallback?.document?.defaultView?.frameElement;
 
-            // e.view가 최상위 window면 이미 전역 좌표일 가능성이 큼
             const isTopWindowEvent = e.view === window || eventDoc === document;
 
-            if (isTopWindowEvent) {
-                return e.clientX; // ✅ 이미 전역
-            }
+            if (isTopWindowEvent) return e.clientX;
 
             if (iframeEl) {
                 const iframeRect = iframeEl.getBoundingClientRect();
-                return iframeRect.left + e.clientX; // ✅ iframe 좌표 -> 전역 변환
+                return iframeRect.left + e.clientX;
             }
 
-            return e.clientX; // fallback
+            return e.clientX;
         };
 
-        // ✅ "진짜 경계선" 기준으로 left/right 판별
-        // - iframe 2개면: (왼쪽 iframe 오른쪽 끝 + 오른쪽 iframe 왼쪽 시작) / 2 를 경계로
-        // - iframe 1개면: BookFrame 중앙으로
+        // ✅ 하이라이트 클릭이 어느 페이지(좌/우)인지 판별
         const getSideByBoundary = (e, contentsFallback) => {
             const globalX = getGlobalClientX(e, contentsFallback);
             if (globalX == null) return "left";
@@ -120,7 +119,6 @@ function Reader() {
                 return globalX < boundaryX ? "left" : "right";
             }
 
-            // fallback: book frame 중앙
             const frame = bookFrameRef.current;
             if (!frame) return "left";
             const frameRect = frame.getBoundingClientRect();
@@ -160,13 +158,10 @@ function Reader() {
             })();
 
             try {
-                // ✅ 있으면 삭제(취소)
                 if (highlights.has(cfiRange)) {
                     rendition.annotations.remove(cfiRange, "highlight");
                     highlights.delete(cfiRange);
 
-                    setActiveSide(null);
-                    setActiveQuote("");
                     clearSelectionInThisContents(contents);
                     return;
                 }
@@ -178,15 +173,16 @@ function Reader() {
                     e?.preventDefault?.();
                     e?.stopPropagation?.();
 
-                    // ✅ "클릭 순간" 경계선 기준으로 좌/우 결정 (가장 안정)
-                    const sideNow = getSideByBoundary(e, contents);
-
-                    setActiveSide((prev) =>
-                        prev === sideNow ? null : sideNow
-                    );
-
-                    // ✅ 텍스트는 이 하이라이트 텍스트로
-                    setActiveQuote(selectedText || "");
+                    const side = getSideByBoundary(e, contents);
+                    if (side === "left") {
+                        // ✅ 왼쪽만 토글, 오른쪽은 그대로 유지
+                        setLeftOpen((prev) => !prev);
+                        setLeftQuote(selectedText || "");
+                    } else {
+                        // ✅ 오른쪽만 토글, 왼쪽은 그대로 유지
+                        setRightOpen((prev) => !prev);
+                        setRightQuote(selectedText || "");
+                    }
                 };
 
                 rendition.annotations.highlight(
@@ -211,6 +207,7 @@ function Reader() {
         };
 
         const onRenditionClick = (e, contents) => {
+            if (isRatingOpen) return;
             if (navLockRef.current) return;
             if (justClickedHighlightRef.current) return;
 
@@ -226,7 +223,6 @@ function Reader() {
             const frameRect = frame.getBoundingClientRect();
             const iframeRect = iframeEl.getBoundingClientRect();
 
-            // 여기서는 "iframe 기준 좌표"가 확실하니까 기존 방식 유지
             const globalX = iframeRect.left + e.clientX;
             const xInFrame = globalX - frameRect.left;
 
@@ -236,15 +232,30 @@ function Reader() {
             if (xInFrame <= leftZone) {
                 lockNav();
                 rendition.prev();
-            } else if (xInFrame >= rightZone) {
+                return;
+            }
+
+            if (xInFrame >= rightZone) {
+                const atEnd = !!locationRef.current?.atEnd;
+                if (atEnd) {
+                    setIsRatingOpen(true);
+                    return;
+                }
+
                 lockNav();
                 rendition.next();
             }
         };
 
-        const onRelocated = () => {
-            setActiveSide(null);
-            setActiveQuote("");
+        const onRelocated = (location) => {
+            locationRef.current = location;
+
+            // ✅ 페이지 이동 시: 원하면 코멘트 닫기
+            // 동시에 유지하고 싶으면 아래 2줄 주석처리
+            setLeftOpen(false);
+            setRightOpen(false);
+            setLeftQuote("");
+            setRightQuote("");
         };
 
         rendition.on("rendered", onRendered);
@@ -274,12 +285,16 @@ function Reader() {
                 book.destroy();
             } catch {}
         };
-    }, []);
+    }, [isRatingOpen]);
 
     return (
         <R.Reader>
+            {isRatingOpen && (
+                <BookRatingModal onClose={() => setIsRatingOpen(false)} />
+            )}
+
             <R.SideSection>
-                {activeSide === "left" && <SideComment quote={activeQuote} />}
+                {leftOpen && <SideComment quote={leftQuote} />}
             </R.SideSection>
 
             <R.CenterSection>
@@ -292,7 +307,7 @@ function Reader() {
             </R.CenterSection>
 
             <R.SideSection>
-                {activeSide === "right" && <SideComment quote={activeQuote} />}
+                {rightOpen && <SideComment quote={rightQuote} />}
             </R.SideSection>
         </R.Reader>
     );
