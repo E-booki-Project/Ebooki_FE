@@ -1,10 +1,32 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import * as S from "../../styles/auth/SignupStyle";
 
 import plus from "../../assets/images/plus.png";
 import back from "../../assets/images/back.png";
+import { useNavigate } from "react-router-dom";
 
-function signup() {
+function Signup() {
+    const fileInputRef = useRef(null);
+    const [profileImg, setProfileImg] = useState(null);
+
+    const navigate = useNavigate();
+
+    const handleSignin = () => {
+        navigate("/signin");
+    };
+
+    const handleProfileClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleProfileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const imgUrl = URL.createObjectURL(file);
+        setProfileImg(imgUrl);
+    };
+
     return (
         <S.Signup>
             <S.SignupContainer>
@@ -12,13 +34,19 @@ function signup() {
                     <img src={back} />
                 </S.Header>
                 <S.Form>
-                    <S.Profile>
-                        <S.ProfileIcon src={plus} />
+                    <S.Profile onClick={handleProfileClick}>
+                        {profileImg ? (
+                            <S.ProfileImg src={profileImg} alt="profile" />
+                        ) : (
+                            <S.ProfileIcon src={plus} alt="plus" />
+                        )}
                     </S.Profile>
-                    <S.InputWrapper>
-                        <S.InputLabel>아이디</S.InputLabel>
-                        <S.InputFeild placeholder="booki" />
-                    </S.InputWrapper>
+                    <S.ProfileInput
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleProfileChange}
+                    />
                     <S.InputWrapper>
                         <S.InputLabel>이메일</S.InputLabel>
                         <S.InputFeild placeholder="booki@example.com" />
@@ -31,11 +59,13 @@ function signup() {
                         <S.InputLabel>비밀번호 확인</S.InputLabel>
                         <S.InputFeild placeholder="영문, 숫자, 특수문자 포함 8자 이상" />
                     </S.InputWrapper>
-                    <S.SignupButton>가입하기</S.SignupButton>
+                    <S.SignupButton onClick={handleSignin}>
+                        가입하기
+                    </S.SignupButton>
                 </S.Form>
             </S.SignupContainer>
         </S.Signup>
     );
 }
 
-export default signup;
+export default Signup;
