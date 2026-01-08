@@ -40,24 +40,8 @@ export const Content = styled.div`
     color: ${colors.black};
 `;
 
-export const ButtonWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-`;
-
-export const CancelButton = styled.button`
-    width: 167px;
-    height: 46px;
-    background-color: ${colors.white};
-    border: 1px solid ${colors.grayMedium};
-    border-radius: 8px;
-    color: ${colors.black};
-    ${typography.bodyBaseSingle};
-`;
-
-export const ConfirmButton = styled.button`
-    width: 167px;
+export const Button = styled.button`
+    width: 100%;
     height: 46px;
     background-color: ${colors.coral};
     border: none;

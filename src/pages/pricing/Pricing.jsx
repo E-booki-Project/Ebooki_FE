@@ -28,18 +28,20 @@ function Pricing() {
                     <P.PlanContent>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
-                        </P.ContentWrapper>
-                        <P.ContentWrapper>
-                            <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                3한달간 교환독서를 경험해봐요!
+                                한 달에 3권, 부담 없이 시작해요
                             </P.PlanDesc>
                         </P.ContentWrapper>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                한달간 교환독서를 경험해봐요!
+                                혼자보다 함께라서 더 꾸준해요
+                            </P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
+                            <P.CheckIcon src={Check} />
+                            <P.PlanDesc>
+                                교환 독서를 처음 경험해보세요!
                             </P.PlanDesc>
                         </P.ContentWrapper>
                     </P.PlanContent>
@@ -65,18 +67,18 @@ function Pricing() {
                     <P.PlanContent style={{ marginTop: "88px" }}>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
+                            <P.PlanDesc>매달 여유롭게 읽는 7권</P.PlanDesc>
                         </P.ContentWrapper>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                3한달간 교환독서를 경험해봐요!
+                                함께 읽고 나누며 깊어지는 독서
                             </P.PlanDesc>
                         </P.ContentWrapper>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                한달간 교환독서를 경험해봐요!
+                                1년 독서 루틴을 만들어보세요!
                             </P.PlanDesc>
                         </P.ContentWrapper>
                     </P.PlanContent>
@@ -95,19 +97,19 @@ function Pricing() {
                     <P.PlanContent>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
-                            <P.PlanDesc>3권을 읽을 수 있어요</P.PlanDesc>
-                        </P.ContentWrapper>
-                        <P.ContentWrapper>
-                            <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                3한달간 교환독서를 경험해봐요!
+                                넉넉한 12권으로 깊이 있는 독서
                             </P.PlanDesc>
                         </P.ContentWrapper>
                         <P.ContentWrapper>
                             <P.CheckIcon src={Check} />
                             <P.PlanDesc>
-                                한달간 교환독서를 경험해봐요!
+                                마음껏 읽고 자유롭게 교환해요
                             </P.PlanDesc>
+                        </P.ContentWrapper>
+                        <P.ContentWrapper>
+                            <P.CheckIcon src={Check} />
+                            <P.PlanDesc>독서가 생활이 되는 플랜</P.PlanDesc>
                         </P.ContentWrapper>
                     </P.PlanContent>
                     <P.PlanButton>요금제 선택</P.PlanButton>

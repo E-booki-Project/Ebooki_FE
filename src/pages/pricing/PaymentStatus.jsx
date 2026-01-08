@@ -4,7 +4,7 @@ import PaymentSuccess from "../../components/PaymentSuccess";
 import PaymentFail from "../../components/PaymentFail";
 
 function PaymentStatus() {
-    const [paymentStatus] = useState("fail");
+    const [paymentStatus] = useState("success");
 
     if (paymentStatus === "success") {
         return (
