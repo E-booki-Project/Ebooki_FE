@@ -19,7 +19,7 @@ function Pricing() {
                     <P.PlanHeader>
                         <P.PlanIcon />
                         <P.PlanWrapper>
-                            <P.PlanName>요금제 이름</P.PlanName>
+                            <P.PlanName>작심삼일 요금제</P.PlanName>
                             <P.PlanPrice>
                                 9,900<span> / 2+1 권</span>
                             </P.PlanPrice>
@@ -58,7 +58,7 @@ function Pricing() {
                     <P.PlanHeader>
                         <P.PlanIcon />
                         <P.PlanWrapper>
-                            <P.PlanName>요금제 이름</P.PlanName>
+                            <P.PlanName>작심한주 요금제</P.PlanName>
                             <P.PlanPrice>
                                 15,000<span> / 6+1 권</span>
                             </P.PlanPrice>
@@ -88,7 +88,7 @@ function Pricing() {
                     <P.PlanHeader>
                         <P.PlanIcon />
                         <P.PlanWrapper>
-                            <P.PlanName>요금제 이름</P.PlanName>
+                            <P.PlanName>작심한달 요금제</P.PlanName>
                             <P.PlanPrice>
                                 21,000<span> / 9+3 권</span>
                             </P.PlanPrice>
