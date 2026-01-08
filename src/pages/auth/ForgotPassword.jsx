@@ -1,14 +1,21 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import * as F from "../../styles/auth/ForgotPasswordStyle";
 
 import back from "../../assets/images/back.png";
 
 function ForgotPassword() {
+    const navigate = useNavigate();
+
+    const handleBack = () => {
+        navigate(-1);
+    };
+
     return (
         <F.ForgotPassword>
             <F.PasswordContainer>
                 <F.Header>
-                    <img src={back} />
+                    <img src={back} onClick={handleBack} />
                 </F.Header>
                 <F.Form>
                     <F.InputWrapper>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SigninStyle";
 
 import google from "../../assets/images/google.png";
@@ -6,6 +7,12 @@ import naver from "../../assets/images/naver.png";
 import kakao from "../../assets/images/kakao.png";
 
 function Signin() {
+    const navigate = useNavigate();
+
+    const handlePassword = () => {
+        navigate("/forgotpassword");
+    };
+
     return (
         <S.Signin>
             <S.EmailContainer>
@@ -19,7 +26,7 @@ function Signin() {
                         <S.InputFeild placeholder="비밀번호를 입력해주세요" />
                     </S.InputWrapper>
                     <S.SigninButton>Sign In</S.SigninButton>
-                    <S.ForgotPassword>
+                    <S.ForgotPassword onClick={handlePassword}>
                         비밀번호를 잊어버렸어요 〉
                     </S.ForgotPassword>
                 </S.Form>

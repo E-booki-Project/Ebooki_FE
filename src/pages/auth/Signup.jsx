@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SignupStyle";
 
 import plus from "../../assets/images/plus.png";
 import back from "../../assets/images/back.png";
-import { useNavigate } from "react-router-dom";
 
 function Signup() {
     const fileInputRef = useRef(null);
@@ -13,6 +13,10 @@ function Signup() {
 
     const handleSignin = () => {
         navigate("/signin");
+    };
+
+    const handleBack = () => {
+        navigate(-1);
     };
 
     const handleProfileClick = () => {
@@ -31,7 +35,7 @@ function Signup() {
         <S.Signup>
             <S.SignupContainer>
                 <S.Header>
-                    <img src={back} />
+                    <img src={back} onClick={handleBack} />
                 </S.Header>
                 <S.Form>
                     <S.Profile onClick={handleProfileClick}>
