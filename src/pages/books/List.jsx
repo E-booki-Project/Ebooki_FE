@@ -11,7 +11,7 @@ const books = [
     { cover: bookCover, title: "가을", rating: 4.0 },
     { cover: bookCover, title: "절창", rating: 4.0 },
     { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 4.0 },
+    { cover: bookCover, title: "위버멘쉬", rating: 1.0 },
     { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
     { cover: bookCover, title: "가을", rating: 4.0 },
     { cover: bookCover, title: "절창", rating: 4.0 },
@@ -21,18 +21,19 @@ const books = [
     { cover: bookCover, title: "가을", rating: 4.0 },
     { cover: bookCover, title: "절창", rating: 4.0 },
     { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 4.0 },
+    { cover: bookCover, title: "위버멘쉬", rating: 2.0 },
     { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
     { cover: bookCover, title: "가을", rating: 4.0 },
     { cover: bookCover, title: "절창", rating: 4.0 },
     { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
     { cover: bookCover, title: "위버멘쉬", rating: 4.0 },
-    { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
+    { cover: bookCover, title: "밤과 나침반", rating: 5.0 },
 ];
 
 function List() {
     const navigate = useNavigate();
     const [sort, setSort] = useState("latest");
+    const [query, setQuery] = useState("");
 
     const handleBookDetail = () => {
         navigate("/books/detail/${bookId}");
@@ -55,21 +56,30 @@ function List() {
         return arr;
     }, [sort]);
 
+    const filteredBooks = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return sortedBooks;
+
+        return sortedBooks.filter((book) =>
+            book.title.toLowerCase().includes(q)
+        );
+    }, [sortedBooks, query]);
+
     return (
         <L.List>
-            <SearchBox />
+            <SearchBox onSearch={setQuery} />
             <SortTabs value={sort} onChange={setSort} />
             <L.BookGrid>
-                {sortedBooks.map((book, index) => (
+                {filteredBooks.map((book, index) => (
                     <L.BookItem
-                        key={index}
+                        key={`${book.title}-${index}`}
                         onClick={() => handleBookDetail(index)}
                     >
                         <L.BookCover src={book.cover} alt={book.title} />
                         <L.BookTitle>{book.title}</L.BookTitle>
 
                         <L.RatingWrapper>
-                            <L.RatingIcon src={star} />
+                            <L.RatingIcon src={star} alt="star" />
                             <L.BookRating>{book.rating}</L.BookRating>
                         </L.RatingWrapper>
                     </L.BookItem>
