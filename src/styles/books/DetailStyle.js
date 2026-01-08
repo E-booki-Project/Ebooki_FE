@@ -20,9 +20,6 @@ export const CoverWrapper = styled.div`
     align-items: center;
     justify-content: center;
     position: relative;
-    width: 100%;
-    border-radius: 0 0 140px 0;
-    overflow: hidden;
     width: 461px;
     height: 680px;
 `;
@@ -30,6 +27,7 @@ export const CoverWrapper = styled.div`
 export const CoverImage = styled.img`
     width: 100%;
     display: block;
+    border-radius: 0 0 140px 0;
 `;
 
 export const PreviewButton = styled.button`
@@ -42,6 +40,35 @@ export const PreviewButton = styled.button`
     background-color: ${colors.white};
     ${typography.bodyBaseSingle};
     cursor: pointer;
+`;
+
+export const CoverActions = styled.div`
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    z-index: 5;
+    top: 54px;
+    right: -50px;
+`;
+
+export const ActionButton = styled.button`
+    width: 50px;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: ${({ $variant }) =>
+        $variant === "bookmark" ? "#F2CF66" : "#F2949C"};
+`;
+
+export const ActionIcon = styled.img`
+    width: 24px;
+    height: 24px;
 `;
 
 export const RightPanel = styled.div`
@@ -100,10 +127,32 @@ export const NoteSection = styled.section`
     margin-top: 142px;
 `;
 
-export const NoteTitle = styled.div`
-    margin-bottom: 24px;
-    ${typography.subHeading};
+export const NoteHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     margin-left: 35px;
+    margin-bottom: 24px;
+`;
+export const NoteTitle = styled.div`
+    ${typography.subHeading};
+`;
+
+export const SortTabs = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+`;
+
+export const TabButton = styled.button`
+    border: none;
+    text-align: center;
+    margin: 0 6px;
+    ${typography.bodyBaseSingle};
+    font-size: 14px;
+    cursor: pointer;
+    color: ${({ $active }) => ($active ? colors.black : colors.grayDark)};
 `;
 
 export const NoteList = styled.div`

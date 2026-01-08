@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import * as L from "../../styles/books/ListStyle";
 import SearchBox from "../../components/SearchBox";
 import SortTabs from "../../components/SortTabs";
@@ -30,7 +31,12 @@ const books = [
 ];
 
 function List() {
+    const navigate = useNavigate();
     const [sort, setSort] = useState("latest");
+
+    const handleBookDetail = () => {
+        navigate("/books/detail/${bookId}");
+    };
 
     const sortedBooks = useMemo(() => {
         const arr = [...books];
@@ -55,7 +61,10 @@ function List() {
             <SortTabs value={sort} onChange={setSort} />
             <L.BookGrid>
                 {sortedBooks.map((book, index) => (
-                    <L.BookItem key={index}>
+                    <L.BookItem
+                        key={index}
+                        onClick={() => handleBookDetail(index)}
+                    >
                         <L.BookCover src={book.cover} alt={book.title} />
                         <L.BookTitle>{book.title}</L.BookTitle>
 
