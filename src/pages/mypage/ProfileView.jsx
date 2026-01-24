@@ -5,10 +5,10 @@ import edit from "../../assets/images/edit.png";
 import user from "../../assets/images/user_blue.png";
 import tape from "../../assets/images/tape_blue.png";
 
-function ProfileView() {
+function ProfileView({ onEdit }) {
     return (
         <PV.ProfileView>
-            <PV.EditButton>
+            <PV.EditButton onClick={onEdit}>
                 <PV.EditIcon src={edit} />
                 프로필 수정
             </PV.EditButton>

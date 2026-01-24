@@ -11,6 +11,12 @@ export const ProfileEdit = styled.div`
     height: 100%;
 `;
 
+export const Header = styled.div`
+    align-self: flex-start;
+    width: 24px;
+    height: 24px;
+`;
+
 export const ProfileWrapper = styled.button`
     width: 170px;
     height: 170px;

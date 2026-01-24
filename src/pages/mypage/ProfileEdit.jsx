@@ -3,8 +3,9 @@ import * as PE from "../../styles/mypage/ProfileEditStyle";
 
 import plus from "../../assets/images/plus_gray.png";
 import user from "../../assets/images/user_blue.png";
+import back from "../../assets/images/back.png";
 
-function ProfileEdit() {
+function ProfileEdit({ onCancel }) {
     const fileRef = useRef(null);
 
     const [previewUrl, setPreviewUrl] = useState(user);
@@ -40,6 +41,9 @@ function ProfileEdit() {
 
     return (
         <PE.ProfileEdit>
+            <PE.Header>
+                <img src={back} onClick={onCancel} />
+            </PE.Header>
             <PE.ProfileWrapper type="button" onClick={handlePickImage}>
                 <PE.ProfileImg src={previewUrl} />
                 <PE.ProfileIcon src={plus} />
