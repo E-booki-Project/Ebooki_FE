@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as M from "../../styles/mypage/MypageStyle";
 import ProfileView from "./ProfileView";
 import ProfileEdit from "./ProfileEdit";
+import BookPlanProgress from "../../components/BookPlanProgress";
 
 function Mypage() {
     const [mode, setMode] = useState("view");
@@ -16,7 +17,9 @@ function Mypage() {
                         <ProfileEdit onCancel={() => setMode("view")} />
                     )}
                 </M.Section>
-                <M.Section></M.Section>
+                <M.Section>
+                    <BookPlanProgress />
+                </M.Section>
             </M.Layout>
         </M.Mypage>
     );

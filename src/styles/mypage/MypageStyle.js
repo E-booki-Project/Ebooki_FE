@@ -16,6 +16,9 @@ export const Layout = styled.div`
 `;
 
 export const Section = styled.section`
+    display: flex;
+    align-items: start;
+    justify-content: center;
     width: 50%;
     height: 100%;
     background-color: ${colors.white};
