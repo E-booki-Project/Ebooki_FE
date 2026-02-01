@@ -2,6 +2,9 @@ import React from "react";
 import * as P from "../../styles/pricing/PricingStyle";
 
 import Check from "../../assets/images/check.png";
+import price1 from "../../assets/images/price_1.png";
+import price2 from "../../assets/images/price_2.png";
+import price3 from "../../assets/images/price_3.png";
 
 function Pricing() {
     return (
@@ -17,7 +20,7 @@ function Pricing() {
             <P.PlanContainer>
                 <P.PlanCard>
                     <P.PlanHeader>
-                        <P.PlanIcon />
+                        <P.PlanIcon src={price1} />
                         <P.PlanWrapper>
                             <P.PlanName>작심삼일 요금제</P.PlanName>
                             <P.PlanPrice>
@@ -56,7 +59,7 @@ function Pricing() {
                 >
                     <P.RecommendedTag>가장 추천하는 요금제</P.RecommendedTag>
                     <P.PlanHeader>
-                        <P.PlanIcon />
+                        <P.PlanIcon src={price2} />
                         <P.PlanWrapper>
                             <P.PlanName>작심한주 요금제</P.PlanName>
                             <P.PlanPrice>
@@ -86,7 +89,7 @@ function Pricing() {
                 </P.PlanCard>
                 <P.PlanCard>
                     <P.PlanHeader>
-                        <P.PlanIcon />
+                        <P.PlanIcon src={price3} />
                         <P.PlanWrapper>
                             <P.PlanName>작심한달 요금제</P.PlanName>
                             <P.PlanPrice>

@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import * as F from "../styles/components/PaymentFailStyle";
 
+import payfail from "../assets/images/pay_fail.png";
+
 function PaymentFail() {
     const navigate = useNavigate();
 
@@ -10,7 +12,7 @@ function PaymentFail() {
     };
     return (
         <F.FailContainer>
-            <F.ImageIcon />
+            <F.ImageIcon src={payfail} />
             <F.FailText>
                 <F.Title>결제를 실패했어요</F.Title>
                 <F.Content>

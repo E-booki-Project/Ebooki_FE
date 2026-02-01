@@ -60,7 +60,7 @@ export const PlanHeader = styled.div`
     width: 247px;
 `;
 
-export const PlanIcon = styled.div`
+export const PlanIcon = styled.img`
     width: 90px;
     height: 90px;
     border-radius: 9999px;

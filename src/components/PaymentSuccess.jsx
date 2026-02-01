@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "../styles/components/PaymentSuccessStyle";
 
+import paysuccess from "../assets/images/pay_success.png";
+
 function PaymentSuccess() {
     const navigate = useNavigate();
 
@@ -10,7 +12,7 @@ function PaymentSuccess() {
     };
     return (
         <S.SuccessContainer>
-            <S.ImageIcon />
+            <S.ImageIcon src={paysuccess} />
             <S.SuccessText>
                 <S.Title>결제가 완료되었어요</S.Title>
                 <S.Content>
