@@ -6,10 +6,8 @@ import App from "./App.jsx";
 import GlobalStyle from "./styles/GlobalStyle.js";
 
 createRoot(document.getElementById("root")).render(
-    <StrictMode>
-        <BrowserRouter>
-            <GlobalStyle />
-            <App />
-        </BrowserRouter>
-    </StrictMode>
+    <BrowserRouter>
+        <GlobalStyle />
+        <App />
+    </BrowserRouter>
 );
