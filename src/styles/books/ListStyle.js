@@ -5,7 +5,7 @@ export const List = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    min-height: 90vh;
 `;
 
 export const BookGrid = styled.div`

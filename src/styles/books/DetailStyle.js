@@ -6,7 +6,7 @@ export const Detail = styled.div`
     display: flex;
     flex-direction: row;
     align-items: start;
-    min-height: 100vh;
+    min-height: 90vh;
 `;
 
 export const LeftPanel = styled.div`

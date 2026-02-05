@@ -5,7 +5,7 @@ export const Reader = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 90vh;
 `;
 
 export const SideSection = styled.div`
@@ -17,8 +17,8 @@ export const SideSection = styled.div`
 
 export const CenterSection = styled.div`
     flex: 0 0 auto;
-    width: 700px;
-    height: 516px;
+    width: clamp(700px, 55vw, 1050px);
+    aspect-ratio: 700 / 516;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,8 +26,8 @@ export const CenterSection = styled.div`
 `;
 
 export const BookFrame = styled.div`
-    width: 700px;
-    height: 516px;
+    width: clamp(700px, 55vw, 1050px);
+    aspect-ratio: 700 / 516;
     position: relative;
     overflow: hidden;
     z-index: 1;
