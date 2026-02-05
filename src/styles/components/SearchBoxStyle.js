@@ -8,7 +8,7 @@ export const SearchBox = styled.div`
     border-radius: 9999px;
     width: 400px;
     height: 40px;
-    padding: 12px 16px;
+    padding: 10px 16px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -26,6 +26,7 @@ export const InputFeild = styled.input`
     border: none;
     height: 100%;
     width: 320px;
+    box-sizing: border-box;
     &::placeholder {
         color: ${colors.black};
         ${typography.bodyBaseSingle};

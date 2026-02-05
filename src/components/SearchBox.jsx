@@ -9,6 +9,7 @@ function SearchBox({ onSearch }) {
 
     const handleClear = () => {
         setValue("");
+        onSearch?.("");
     };
 
     const handleKeyDown = (e) => {

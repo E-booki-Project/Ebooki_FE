@@ -44,7 +44,7 @@ function List() {
 
         if (sort === "latest") {
             return arr.sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
             );
         }
         if (sort === "popular") {
@@ -61,7 +61,7 @@ function List() {
         if (!q) return sortedBooks;
 
         return sortedBooks.filter((book) =>
-            book.title.toLowerCase().includes(q)
+            book.title.toLowerCase().includes(q),
         );
     }, [sortedBooks, query]);
 
