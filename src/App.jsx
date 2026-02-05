@@ -8,7 +8,6 @@ import Signup from "./pages/auth/Signup";
 import Detail from "./pages/books/Detail";
 import List from "./pages/books/List";
 import Reader from "./pages/books/Reader";
-import Search from "./pages/books/Search";
 
 import Invite from "./pages/team/Invite";
 import Join from "./pages/team/Join";
@@ -39,7 +38,6 @@ function App() {
                     <Route path="/books" element={<List />} />
                     <Route path="/reader/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
-                    <Route path="/books/search" element={<Search />} />
 
                     <Route path="/invite/:teamId" element={<Invite />} />
                     <Route path="/join/:teamId" element={<Join />} />
