@@ -39,7 +39,7 @@ export const InputLabel = styled.label`
     ${typography.bodyBase};
 `;
 
-export const InputFeild = styled.input`
+export const InputField = styled.input`
     width: 272px;
     height: 40px;
     border: 1px solid ${colors.grayMedium};
@@ -90,7 +90,12 @@ export const IconWrapper = styled.div`
     gap: 24px;
 `;
 
-export const SocailIcon = styled.img`
+export const SocialIcon = styled.img`
     width: 44px;
     height: 44px;
+`;
+
+export const ErrorMessage = styled.p`
+    color: ${colors.coral};
+    font-size: 12px;
 `;
