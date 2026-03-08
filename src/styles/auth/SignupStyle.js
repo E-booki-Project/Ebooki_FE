@@ -94,3 +94,8 @@ export const SignupButton = styled.button`
     color: ${colors.white};
     ${typography.bodyBaseSingle};
 `;
+
+export const ErrorMessage = styled.p`
+    color: ${colors.coral};
+    font-size: 12px;
+`;
