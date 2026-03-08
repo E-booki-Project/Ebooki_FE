@@ -1,7 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
+import * as M from "../../styles/mypage/MypageStyle";
+import ProfileView from "./ProfileView";
+import ProfileEdit from "./ProfileEdit";
+import BookPlanProgress from "../../components/BookPlanProgress";
 
 function Mypage() {
-    return <div>Mypage</div>;
+    const [mode, setMode] = useState("view");
+
+    return (
+        <M.Mypage>
+            <M.Layout>
+                <M.Section>
+                    {mode === "view" ? (
+                        <ProfileView onEdit={() => setMode("edit")} />
+                    ) : (
+                        <ProfileEdit onCancel={() => setMode("view")} />
+                    )}
+                </M.Section>
+                <M.Section>
+                    <BookPlanProgress />
+                </M.Section>
+            </M.Layout>
+        </M.Mypage>
+    );
 }
 
 export default Mypage;
