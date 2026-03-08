@@ -61,15 +61,48 @@ export const LoginBtn = styled.div`
     }
 `;
 
+export const ProfileWrapper = styled.div`
+    position: relative;
+    margin-left: 24px;
+`;
+
 export const ProfileImage = styled.img`
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     cursor: pointer;
-    margin-left: 24px;
 
     &:hover {
         opacity: 0.9;
+    }
+`;
+
+export const Dropdown = styled.div`
+    position: absolute;
+    top: 52px;
+    right: 0;
+    width: 130px;
+    height: 104px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background-color: ${colors.white};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    z-index: 10;
+`;
+
+export const DropdownItem = styled.div`
+    width: 100%;
+    border: none;
+    background: ${colors.white};
+    text-align: left;
+    cursor: pointer;
+    ${typography.bodyBaseSingle};
+
+    &:hover {
+        background-color: ${colors.grayLighter};
     }
 `;
