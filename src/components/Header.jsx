@@ -1,7 +1,8 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as H from "../styles/components/HeaderStyle";
 import logo from "../assets/images/logo.png";
+import profile from "../assets/images/user_pink.png";
 
 function AppHeader({ isLoggedIn = false, onLogout }) {
     const navigate = useNavigate();
@@ -13,6 +14,10 @@ function AppHeader({ isLoggedIn = false, onLogout }) {
         } else {
             navigate("/signin");
         }
+    };
+
+    const handleProfileClick = () => {
+        navigate("/mypage");
     };
 
     return (
@@ -28,9 +33,21 @@ function AppHeader({ isLoggedIn = false, onLogout }) {
                     <H.MenuLink to="/teams">팀</H.MenuLink>
                 </H.MenuNav>
 
-                <H.LoginBtn as="button" type="button" onClick={handleAuthClick}>
-                    {isLoggedIn ? "로그아웃" : "로그인"}
-                </H.LoginBtn>
+                {isLoggedIn ? (
+                    <H.ProfileImage
+                        src={profile}
+                        alt="프로필"
+                        onClick={handleProfileClick}
+                    />
+                ) : (
+                    <H.LoginBtn
+                        as="button"
+                        type="button"
+                        onClick={handleAuthClick}
+                    >
+                        로그인
+                    </H.LoginBtn>
+                )}
             </H.MenuWrapper>
         </H.Header>
     );

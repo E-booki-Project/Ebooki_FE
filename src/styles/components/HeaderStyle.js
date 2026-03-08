@@ -60,3 +60,16 @@ export const LoginBtn = styled.div`
         opacity: 0.9;
     }
 `;
+
+export const ProfileImage = styled.img`
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    margin-left: 24px;
+
+    &:hover {
+        opacity: 0.9;
+    }
+`;
