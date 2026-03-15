@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as I from "../../styles/team/InviteStyle";
 
@@ -10,8 +10,7 @@ import userBlue from "../../assets/images/user_blue.png";
 import userGreen from "../../assets/images/user_green.png";
 import more from "../../assets/images/more.png";
 
-import { createTeam } from "../../api/team";
-import { getBook } from "../../api/book";
+import { getTeamList, updateTeam, reissueInviteLink } from "../../api/team";
 
 const COLOR_IMAGE_MAP = {
     PINK: userPink,
@@ -19,58 +18,70 @@ const COLOR_IMAGE_MAP = {
     GREEN: userGreen,
 };
 
-function Invite() {
-    const { bookId } = useParams();
+function EditTeam() {
+    const { teamId } = useParams();
     const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState("");
     const [bookData, setBookData] = useState(null);
     const [teamUserData, setTeamUserData] = useState([]);
-    const [inviteToken, setInviteToken] = useState("");
 
     useEffect(() => {
-        const fetchBook = async () => {
+        const fetchTeamDetail = async () => {
             try {
-                const data = await getBook(bookId);
-                setBookData(data);
+                const response = await getTeamList();
+                const team = response.teams.find(
+                    (t) => t.teamId === Number(teamId)
+                );
+                if (!team) {
+                    alert("팀 정보를 찾을 수 없습니다.");
+                    return;
+                }
+                setTeamName(team.teamName);
+                setTeamUserData(
+                    team.memberProfileImages.map((url, index) => ({
+                        id: index,
+                        userColor: null,
+                        userId: "",
+                        image: url,
+                    }))
+                );
+                setBookData({
+                    bookImage: team.bookImage,
+                    title: team.bookTitle,
+                    author: "",
+                });
             } catch (error) {
-                alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
+                alert(error.response?.data?.message || "팀 정보를 불러오는데 실패했습니다.");
             }
         };
-        fetchBook();
-    }, [bookId]);
+        fetchTeamDetail();
+    }, [teamId]);
 
-    const handleCreate = async () => {
+    const handleUpdate = async () => {
         if (!teamName.trim()) return;
         try {
-            const response = await createTeam({
-                teamName: teamName.trim(),
-                bookId: Number(bookId),
-            });
-
-            setTeamUserData(response.teamData.teamUserData);
-            const url = response.teamData.inviteUrl;
-            const token = url ? new URLSearchParams(url.split("?")[1]).get("token") : null;
-            setInviteToken(token);
-            setBookData(response.bookData);
+            await updateTeam(teamId, teamName.trim());
         } catch (error) {
-            const status = error.response?.data?.statusCode;
-            const message = error.response?.data?.message;
-
-            if (status === 400 && message === "사용 가능한 요금제가 없습니다.") {
-                alert("사용 가능한 요금제가 없습니다. 요금제 페이지로 이동합니다.");
-                navigate("/pricing");
-            } else {
-                alert(message || "팀 생성에 실패했습니다.");
-            }
+            alert(error.response?.data?.message || "팀 이름 수정에 실패했습니다.");
         }
     };
 
     const handleCopyLink = async () => {
-        if (!inviteToken) return;
-        const frontendUrl = `${window.location.origin}/join/${inviteToken}`;
-        await navigator.clipboard.writeText(frontendUrl);
-        alert("링크가 복사되었습니다.");
+        try {
+            const response = await reissueInviteLink(teamId);
+            const newUrl = response.teamData.newUrl;
+            const token = newUrl ? new URLSearchParams(newUrl.split("?")[1]).get("token") : null;
+            if (!token) {
+                alert("초대 링크 생성에 실패했습니다.");
+                return;
+            }
+            const frontendUrl = `${window.location.origin}/join/${token}`;
+            await navigator.clipboard.writeText(frontendUrl);
+            alert("링크가 복사되었습니다.");
+        } catch (error) {
+            alert(error.response?.data?.message || "초대 링크 재생성에 실패했습니다.");
+        }
     };
 
     return (
@@ -84,7 +95,7 @@ function Invite() {
                     <I.BookDesc>
                         {bookData
                             ? `${bookData.title}, ${bookData.author}`
-                            : "가을, 김유정"}
+                            : ""}
                     </I.BookDesc>
                 </I.BookWrapper>
                 <I.InputWrapeer>
@@ -92,8 +103,8 @@ function Invite() {
                         placeholder="팀 이름을 입력해주세요"
                         value={teamName}
                         onChange={(e) => setTeamName(e.target.value)}
-                        onBlur={handleCreate}
-                        onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                        onBlur={handleUpdate}
+                        onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
                     />
                     <I.BackIcon
                         src={X}
@@ -113,7 +124,7 @@ function Invite() {
                             </I.LinkSub>
                         </I.LinkContent>
                     </I.LinkWrapper>
-                    <I.LinkButton onClick={handleCopyLink} disabled={!inviteToken}>
+                    <I.LinkButton onClick={handleCopyLink}>
                         Copy Link
                     </I.LinkButton>
                 </I.LinkContainer>
@@ -124,6 +135,7 @@ function Invite() {
                                 <I.Profile
                                     src={
                                         COLOR_IMAGE_MAP[user.userColor] ||
+                                        user.image ||
                                         userPink
                                     }
                                 />
@@ -138,4 +150,4 @@ function Invite() {
     );
 }
 
-export default Invite;
+export default EditTeam;

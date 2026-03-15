@@ -28,7 +28,7 @@ function TeamCard({ team }) {
     };
 
     const handleEditClick = () => {
-        navigate(`/invite/${team.id}`);
+        navigate(`/edit/${team.id}`);
         setIsMenuOpen(false);
     };
 
