@@ -6,7 +6,7 @@ export const createTeam = async (data) => {
 };
 
 export const joinTeam = async (token) => {
-    const response = await axiosInstance.post(`/api/teams/invite?token=${token}`);
+    const response = await axiosInstance.get(`/api/teams/invite?token=${token}`);
     return response.data;
 };
 
@@ -16,7 +16,7 @@ export const acceptInvite = async (token) => {
 };
 
 export const getTeamList = async () => {
-    const response = await axiosInstance.get("/api/teams");
+    const response = await axiosInstance.get("/api/teams/list");
     return response.data;
 };
 

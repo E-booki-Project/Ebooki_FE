@@ -87,7 +87,7 @@ function Join() {
                 <J.JoinContent>{teamData?.teamName}</J.JoinContent>
                 <J.ButtonWrapper>
                     <J.AcceptButton onClick={handleAccept}>초대 수락하고 같이 읽기</J.AcceptButton>
-                    <J.CancleButton>거절</J.CancleButton>
+                    <J.CancleButton onClick={() => navigate("/")}>거절</J.CancleButton>
                 </J.ButtonWrapper>
             </J.JoinContainer>
         </J.Join>

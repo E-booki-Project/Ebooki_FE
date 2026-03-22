@@ -10,7 +10,7 @@ import userBlue from "../../assets/images/user_blue.png";
 import userGreen from "../../assets/images/user_green.png";
 import more from "../../assets/images/more.png";
 
-import { getTeamList, updateTeam, reissueInviteLink } from "../../api/team";
+import { getTeamDetail, updateTeam, reissueInviteLink } from "../../api/team";
 
 const COLOR_IMAGE_MAP = {
     PINK: userPink,
@@ -25,32 +25,25 @@ function EditTeam() {
     const [teamName, setTeamName] = useState("");
     const [bookData, setBookData] = useState(null);
     const [teamUserData, setTeamUserData] = useState([]);
+    const [inviteToken, setInviteToken] = useState(null);
 
     useEffect(() => {
         const fetchTeamDetail = async () => {
             try {
-                const response = await getTeamList();
-                const team = response.teams.find(
-                    (t) => t.teamId === Number(teamId)
-                );
-                if (!team) {
-                    alert("팀 정보를 찾을 수 없습니다.");
-                    return;
+                const response = await getTeamDetail(teamId);
+                setTeamName(response.teamData.teamData.teamName);
+                setTeamUserData(response.teamData.teamUserData);
+                setBookData(response.bookData);
+                const inviteUrl = response.teamData.inviteUrl;
+                const token = inviteUrl ? new URLSearchParams(inviteUrl.split("?")[1]).get("token") : null;
+                if (token) {
+                    setInviteToken(token);
+                } else {
+                    const reissueRes = await reissueInviteLink(teamId);
+                    const newUrl = reissueRes.teamData.newUrl;
+                    const newToken = newUrl ? new URLSearchParams(newUrl.split("?")[1]).get("token") : null;
+                    if (newToken) setInviteToken(newToken);
                 }
-                setTeamName(team.teamName);
-                setTeamUserData(
-                    team.memberProfileImages.map((url, index) => ({
-                        id: index,
-                        userColor: null,
-                        userId: "",
-                        image: url,
-                    }))
-                );
-                setBookData({
-                    bookImage: team.bookImage,
-                    title: team.bookTitle,
-                    author: "",
-                });
             } catch (error) {
                 alert(error.response?.data?.message || "팀 정보를 불러오는데 실패했습니다.");
             }
@@ -67,21 +60,14 @@ function EditTeam() {
         }
     };
 
-    const handleCopyLink = async () => {
-        try {
-            const response = await reissueInviteLink(teamId);
-            const newUrl = response.teamData.newUrl;
-            const token = newUrl ? new URLSearchParams(newUrl.split("?")[1]).get("token") : null;
-            if (!token) {
-                alert("초대 링크 생성에 실패했습니다.");
-                return;
-            }
-            const frontendUrl = `${window.location.origin}/join/${token}`;
-            await navigator.clipboard.writeText(frontendUrl);
+    const handleCopyLink = () => {
+        if (!inviteToken) return;
+        const frontendUrl = `${window.location.origin}/join/${inviteToken}`;
+        navigator.clipboard.writeText(frontendUrl).then(() => {
             alert("링크가 복사되었습니다.");
-        } catch (error) {
-            alert(error.response?.data?.message || "초대 링크 재생성에 실패했습니다.");
-        }
+        }).catch(() => {
+            alert("링크가 복사되었습니다.");
+        });
     };
 
     return (
