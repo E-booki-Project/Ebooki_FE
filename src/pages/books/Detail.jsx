@@ -1,55 +1,48 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
+import { getBook, getBookTimeline, toggleLike } from "../../api/book";
 
 import cover from "../../assets/images/book.png";
 import star from "../../assets/images/star.png";
+import starFull from "../../assets/images/star_full.png";
 import bookmark from "../../assets/images/bookmark.png";
 import link from "../../assets/images/link_black.png";
 
 function Detail() {
+    const { bookId } = useParams();
+    const [bookData, setBookData] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [timeline, setTimeline] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
 
-    const highlights = [
-        {
-            id: 1,
-            text: "내가 주제소에게까지 가게 될 때에는 나에게도 다소 책임이 있을지 모른다...",
-            page: "p. 27",
-            datetime: "2025.11.1  16:00",
-        },
-        {
-            id: 2,
-            text: "한 번도 저의 속을 털 일은 번번이 없다...",
-            page: "p. 31",
-            datetime: "2025.11.1  17:30",
-        },
-    ];
-
-    const comments = [
-        {
-            id: 101,
-            text: "이 부분 완전 공감.",
-            datetime: "2025.11.1  17:50",
-        },
-    ];
-
-    const toDate = (dt) => {
-        const [datePart, timePart] = dt.trim().split(/\s+/);
-        const [y, m, d] = datePart.split(".").map(Number);
-        const [hh, mm] = timePart.split(":").map(Number);
-        return new Date(y, m - 1, d, hh, mm);
-    };
+    useEffect(() => {
+        const fetchBook = async () => {
+            try {
+                const data = await getBook(bookId);
+                setBookData(data);
+                setLiked(data.liked);
+            } catch (error) {
+                alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
+            }
+        };
+        const fetchTimeline = async () => {
+            try {
+                const data = await getBookTimeline(bookId);
+                setTimeline(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchBook();
+        fetchTimeline();
+    }, [bookId]);
 
     const visibleItems = useMemo(() => {
-        if (activeTab === "highlight") return highlights;
-        if (activeTab === "comment") return comments;
-
-        const merged = [
-            ...highlights.map((h) => ({ ...h, type: "highlight" })),
-            ...comments.map((c) => ({ ...c, type: "comment" })),
-        ];
-        merged.sort((a, b) => toDate(a.datetime) - toDate(b.datetime));
-        return merged;
-    }, [activeTab, highlights, comments]);
+        if (activeTab === "highlight") return timeline.filter((item) => item.type === "HIGHLIGHT");
+        if (activeTab === "comment") return timeline.filter((item) => item.type === "COMMENT");
+        return [...timeline].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }, [timeline, activeTab]);
 
     const handleTabClick = (tab) => {
         setActiveTab((prev) => (prev === tab ? null : tab));
@@ -60,11 +53,18 @@ function Detail() {
             {/* 책 전체 layout */}
             <D.LeftPanel>
                 <D.CoverWrapper>
-                    <D.CoverImage src={cover} alt="cover" />
+                    <D.CoverImage src={bookData?.bookImage || cover} alt="cover" />
                     <D.PreviewButton>미리보기</D.PreviewButton>
                     <D.CoverActions>
-                        <D.ActionButton $variant="bookmark">
-                            <D.ActionIcon src={bookmark} />
+                        <D.ActionButton $variant="bookmark" onClick={async () => {
+                            try {
+                                await toggleLike(bookId);
+                                setLiked((prev) => !prev);
+                            } catch (error) {
+                                alert(error.response?.data?.message || "북마크 처리에 실패했습니다.");
+                            }
+                        }}>
+                            <D.ActionIcon src={bookmark} style={{ opacity: liked ? 1 : 0.3 }} />
                         </D.ActionButton>
                         <D.ActionButton $variant="link">
                             <D.ActionIcon src={link} />
@@ -76,14 +76,22 @@ function Detail() {
             {/* 오른쪽 패널 */}
             <D.RightPanel>
                 <D.BookInfoSection>
-                    <D.BookTitle>가을</D.BookTitle>
-                    <D.BookMeta>김유정 지음 돌곶컴퍼니</D.BookMeta>
+                    <D.BookTitle>{bookData?.title}</D.BookTitle>
+                    <D.BookMeta>{bookData ? `${bookData.author} 지음 ${bookData.publisher}` : ""}</D.BookMeta>
 
                     <D.RatingWrapper>
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <D.StarIcon key={index} src={star} alt="star" />
-                        ))}
-                        <D.RatingScore>4.0</D.RatingScore>
+                        {Array.from({ length: 5 }).map((_, index) => {
+                            const fill = Math.min(1, Math.max(0, (bookData?.rating ?? 0) - index));
+                            return (
+                                <div key={index} style={{ position: "relative", display: "inline-block" }}>
+                                    <D.StarIcon src={star} alt="star" />
+                                    <div style={{ position: "absolute", top: 0, left: 0, width: `${fill * 100}%`, overflow: "hidden" }}>
+                                        <D.StarIcon src={starFull} alt="star-full" />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        <D.RatingScore>{bookData?.rating}</D.RatingScore>
                     </D.RatingWrapper>
 
                     <D.ReadButton>같이 읽으러 가기</D.ReadButton>
@@ -113,33 +121,25 @@ function Detail() {
 
                     <D.NoteList>
                         {visibleItems.map((item) => {
-                            const isHighlightItem =
-                                item.type === "highlight" ||
-                                item.page !== undefined;
+                            const isHighlightItem = item.type === "HIGHLIGHT";
 
                             return (
                                 <D.NoteCard
-                                    key={`${isHighlightItem ? "h" : "c"}-${
-                                        item.id
-                                    }`}
+                                    key={`${item.type}-${item.createdAt}`}
                                 >
-                                    {/* 하이라이트일 때만 LeftBar */}
                                     {isHighlightItem && <D.NoteLeftBar />}
 
                                     <D.NoteContent>
                                         <D.NoteText>{item.text}</D.NoteText>
 
                                         <D.NoteFooter>
-                                            {/* 하이라이트일 때만 page */}
                                             {isHighlightItem ? (
-                                                <D.NotePage>
-                                                    {item.page}
-                                                </D.NotePage>
+                                                <D.NotePage>{item.page ?? ""}</D.NotePage>
                                             ) : (
                                                 <div />
                                             )}
                                             <D.NoteDate>
-                                                {item.datetime}
+                                                {new Date(item.createdAt).toLocaleString()}
                                             </D.NoteDate>
                                         </D.NoteFooter>
                                     </D.NoteContent>

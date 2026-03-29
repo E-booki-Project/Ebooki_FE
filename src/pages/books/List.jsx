@@ -1,83 +1,64 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import * as L from "../../styles/books/ListStyle";
 import SearchBox from "../../components/SearchBox";
 import SortTabs from "../../components/SortTabs";
+import { getBooks, searchBooks } from "../../api/book";
 
 import star from "../../assets/images/star.png";
 import bookCover from "../../assets/images/book.png";
 
-const books = [
-    { cover: bookCover, title: "가을", rating: 4.0 },
-    { cover: bookCover, title: "절창", rating: 4.0 },
-    { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 1.0 },
-    { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
-    { cover: bookCover, title: "가을", rating: 4.0 },
-    { cover: bookCover, title: "절창", rating: 4.0 },
-    { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 4.0 },
-    { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
-    { cover: bookCover, title: "가을", rating: 4.0 },
-    { cover: bookCover, title: "절창", rating: 4.0 },
-    { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 2.0 },
-    { cover: bookCover, title: "밤과 나침반", rating: 4.0 },
-    { cover: bookCover, title: "가을", rating: 4.0 },
-    { cover: bookCover, title: "절창", rating: 4.0 },
-    { cover: bookCover, title: "트렌드 코리아 2026", rating: 4.0 },
-    { cover: bookCover, title: "위버멘쉬", rating: 4.0 },
-    { cover: bookCover, title: "밤과 나침반", rating: 5.0 },
-];
-
 function List() {
     const navigate = useNavigate();
+    const [books, setBooks] = useState([]);
     const [sort, setSort] = useState("latest");
-    const [query, setQuery] = useState("");
 
-    const handleBookDetail = () => {
-        navigate("/books/detail/${bookId}");
+    useEffect(() => {
+        const fetchBooks = async () => {
+            try {
+                const data = await getBooks();
+                setBooks(data);
+            } catch (error) {
+                alert(error.response?.data?.message || "책 목록을 불러오는데 실패했습니다.");
+            }
+        };
+        fetchBooks();
+    }, []);
+
+    const handleSearch = async (q) => {
+        if (!q.trim()) {
+            const data = await getBooks();
+            setBooks(data);
+            return;
+        }
+        try {
+            const data = await searchBooks(q);
+            setBooks(data.bookList);
+        } catch (error) {
+            alert(error.response?.data?.message || "검색에 실패했습니다.");
+        }
     };
 
-    const sortedBooks = useMemo(() => {
+    const filteredBooks = useMemo(() => {
         const arr = [...books];
-
-        if (sort === "latest") {
-            return arr.sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-            );
-        }
-        if (sort === "popular") {
-            return arr.sort((a, b) => b.views - a.views);
-        }
         if (sort === "rating") {
             return arr.sort((a, b) => b.rating - a.rating);
         }
         return arr;
-    }, [sort]);
-
-    const filteredBooks = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        if (!q) return sortedBooks;
-
-        return sortedBooks.filter((book) =>
-            book.title.toLowerCase().includes(q),
-        );
-    }, [sortedBooks, query]);
+    }, [books, sort]);
 
     return (
         <L.List>
-            <SearchBox onSearch={setQuery} />
+            <SearchBox onSearch={handleSearch} />
             <SortTabs value={sort} onChange={setSort} />
             <L.BookGrid>
-                {filteredBooks.map((book, index) => (
+                {filteredBooks.map((book) => (
                     <L.BookItem
-                        key={`${book.title}-${index}`}
-                        onClick={() => handleBookDetail(index)}
+                        key={book.id}
+                        onClick={() => navigate(`/books/detail/${book.id}`)}
                     >
-                        <L.BookCover src={book.cover} alt={book.title} />
+                        <L.BookCover src={book.bookImage || bookCover} alt={book.title} />
                         <L.BookTitle>{book.title}</L.BookTitle>
-
                         <L.RatingWrapper>
                             <L.RatingIcon src={star} alt="star" />
                             <L.BookRating>{book.rating}</L.BookRating>
