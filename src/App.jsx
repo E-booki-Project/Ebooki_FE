@@ -47,7 +47,7 @@ function App() {
 
                     <Route path="/pricing" element={<Pricing />} />
                     <Route
-                        path="/payments/callback"
+                        path="/payment/success"
                         element={<PaymentStatus />}
                     />
 
