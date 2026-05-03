@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import ePub from "epubjs";
 import * as R from "../../styles/books/ReaderStyle";
 import SideComment from "../../components/SideComment";
 import BookRatingModal from "../../components/BookRatingModal";
+import { connectSocket, disconnectSocket, sendHighlight } from "../../api/socket";
 
 function Reader() {
+    const { teamId, bookId } = useParams();
+
     const viewerRef = useRef(null);
     const bookFrameRef = useRef(null);
 
@@ -199,6 +203,7 @@ function Reader() {
                 );
 
                 highlights.set(cfiRange, { className, text: selectedText });
+                sendHighlight(teamId, bookId, { cfiRange, text: selectedText });
             } catch (e) {
                 console.error(e);
             }
@@ -285,7 +290,38 @@ function Reader() {
                 book.destroy();
             } catch {}
         };
-    }, [isRatingOpen]);
+    }, [isRatingOpen, teamId, bookId]);
+
+    useEffect(() => {
+        if (!teamId || !bookId) return;
+
+        connectSocket({
+            teamId,
+            bookId,
+            onHighlight: ({ cfiRange, text }) => {
+                const rendition = renditionRef.current;
+                const highlights = highlightsRef.current;
+                if (!rendition || highlights.has(cfiRange)) return;
+
+                const className = toSafeClassName(cfiRange);
+                rendition.annotations.highlight(
+                    cfiRange,
+                    {},
+                    () => {},
+                    className,
+                    {
+                        fill: "rgba(255, 216, 237, 0.55)",
+                        "fill-opacity": "0.55",
+                        "mix-blend-mode": "multiply",
+                        "pointer-events": "all",
+                    }
+                );
+                highlights.set(cfiRange, { className, text });
+            },
+        });
+
+        return () => disconnectSocket();
+    }, [teamId, bookId]);
 
     return (
         <R.Reader>
