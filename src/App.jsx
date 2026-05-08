@@ -37,7 +37,7 @@ function App() {
                 {/* 헤더 있는 페이지 */}
                 <Route element={<AppLayout />}>
                     <Route path="/books" element={<List />} />
-                    <Route path="/reader/:bookId" element={<Reader />} />
+                    <Route path="/reader/:teamId/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
 
                     <Route path="/invite/:bookId" element={<Invite />} />
