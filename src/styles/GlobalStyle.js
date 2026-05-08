@@ -12,7 +12,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: "NanumGothic";
+    font-family: "NanumGothic", sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
     background-color: #F2F2F2;

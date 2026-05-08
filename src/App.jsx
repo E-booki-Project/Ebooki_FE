@@ -10,6 +10,7 @@ import List from "./pages/books/List";
 import Reader from "./pages/books/Reader";
 
 import Invite from "./pages/team/Invite";
+import EditTeam from "./pages/team/EditTeam";
 import Join from "./pages/team/Join";
 import TeamList from "./pages/team/TeamList";
 
@@ -39,8 +40,9 @@ function App() {
                     <Route path="/reader/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
 
-                    <Route path="/invite/:teamId" element={<Invite />} />
-                    <Route path="/join/:teamId" element={<Join />} />
+                    <Route path="/invite/:bookId" element={<Invite />} />
+                    <Route path="/edit/:teamId" element={<EditTeam />} />
+                    <Route path="/join/:teamId" element={<Join />} /> {/* teamId = 실제론 토큰 보낼예정 */}
                     <Route path="/teams" element={<TeamList />} />
 
                     <Route path="/pricing" element={<Pricing />} />
