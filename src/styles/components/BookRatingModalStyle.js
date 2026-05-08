@@ -2,8 +2,6 @@ import styled from "styled-components";
 import { typography } from "../typography";
 import { colors } from "../colors";
 
-import starEmptyImg from "../../assets/images/star.png";
-import starFullImg from "../../assets/images/star_full.png";
 
 export const Overlay = styled.div`
     position: fixed;
@@ -71,24 +69,12 @@ export const StarButton = styled.button`
     border: 0;
     background: transparent;
     cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 0;
+    font-size: 0;
 `;
 
-const StarBase = styled.div`
+export const StarImg = styled.img`
     width: 32px;
     height: 32px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-`;
-
-export const StarEmpty = styled(StarBase)`
-    background-image: url(${starEmptyImg});
-`;
-
-export const StarFull = styled(StarBase)`
-    background-image: url(${starFullImg});
+    display: block;
 `;

@@ -69,7 +69,7 @@ function Join() {
                     <J.BookDesc>
                         {bookData
                             ? `${bookData.title}, ${bookData.author}`
-                            : "가을, 김유정"}
+                            : "책을 불러올 수 없습니다."}
                     </J.BookDesc>
                 </J.BookWrapper>
                 <J.GroupContainer>

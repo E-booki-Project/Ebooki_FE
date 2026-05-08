@@ -16,8 +16,10 @@ function Pricing() {
             const data = await paymentReady(planId);
             sessionStorage.setItem("payment_tid", data.tid);
             window.location.href = data.next_redirect_pc_url;
-        } catch {
-            navigate("/payment/success");
+        } catch (error) {
+            navigate("/payment/success", {
+                state: { message: error.response?.data?.message ?? null },
+            });
         }
     };
 

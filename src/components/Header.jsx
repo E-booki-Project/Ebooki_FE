@@ -28,7 +28,7 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
         if (onLogout) {
             onLogout();
         } else {
-            navigate("/");
+            navigate("/signin");
         }
     };
 

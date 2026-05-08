@@ -124,6 +124,7 @@ export const LinkButton = styled.button`
     width: 99px;
     height: 40px;
     padding: 12px;
+    border: none;
 `;
 
 export const ListContainer = styled.div`

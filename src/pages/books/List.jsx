@@ -55,7 +55,7 @@ function List() {
                 {filteredBooks.map((book) => (
                     <L.BookItem
                         key={book.id}
-                        onClick={() => navigate(`/books/detail/${book.id}`)}
+                        onClick={() => navigate(`/books/info/${book.id}`)}
                     >
                         <L.BookCover src={book.bookImage || bookCover} alt={book.title} />
                         <L.BookTitle>{book.title}</L.BookTitle>

@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
 import { getBook, getBookTimeline, toggleLike } from "../../api/book";
 
+import BookRatingModal from "../../components/BookRatingModal";
 import cover from "../../assets/images/book.png";
 import star from "../../assets/images/star.png";
 import starFull from "../../assets/images/star_full.png";
@@ -11,10 +12,12 @@ import link from "../../assets/images/link_black.png";
 
 function Detail() {
     const { bookId } = useParams();
+    const navigate = useNavigate();
     const [bookData, setBookData] = useState(null);
     const [liked, setLiked] = useState(false);
     const [timeline, setTimeline] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
+    const [isRatingOpen, setIsRatingOpen] = useState(false);
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -50,6 +53,9 @@ function Detail() {
 
     return (
         <D.Detail>
+            {isRatingOpen && (
+                <BookRatingModal bookId={bookId} initialRating={bookData?.rating} onClose={() => setIsRatingOpen(false)} />
+            )}
             {/* 책 전체 layout */}
             <D.LeftPanel>
                 <D.CoverWrapper>
@@ -79,7 +85,7 @@ function Detail() {
                     <D.BookTitle>{bookData?.title}</D.BookTitle>
                     <D.BookMeta>{bookData ? `${bookData.author} 지음 ${bookData.publisher}` : ""}</D.BookMeta>
 
-                    <D.RatingWrapper>
+                    <D.RatingWrapper onClick={() => setIsRatingOpen(true)}>
                         {Array.from({ length: 5 }).map((_, index) => {
                             const fill = Math.min(1, Math.max(0, (bookData?.rating ?? 0) - index));
                             return (
@@ -91,10 +97,10 @@ function Detail() {
                                 </div>
                             );
                         })}
-                        <D.RatingScore>{bookData?.rating}</D.RatingScore>
+                        <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.rating}</D.RatingScore>
                     </D.RatingWrapper>
 
-                    <D.ReadButton>같이 읽으러 가기</D.ReadButton>
+                    <D.ReadButton onClick={() => navigate(`/invite/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
                 </D.BookInfoSection>
 
                 {/* 독서 메모 */}

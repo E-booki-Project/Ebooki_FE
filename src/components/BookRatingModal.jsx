@@ -1,88 +1,70 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import * as BR from "../styles/components/BookRatingModalStyle";
+import { patchRating } from "../api/rating";
 import close from "../assets/images/X.png";
+import star from "../assets/images/star.png";
+import starFull from "../assets/images/star_full.png";
 
-function BookRatingModal({ onClose }) {
-    const [rating, setRating] = useState(0);
-    const [dragging, setDragging] = useState(false);
-    const wrapRef = useRef(null);
+const COUNT = 5;
 
-    const COUNT = 5;
+function BookRatingModal({ onClose, initialRating, bookId }) {
+    const [rating, setRating] = useState(initialRating ?? 0);
 
-    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-
-    // ✅ "별 하나"의 영역 기준으로 rating 계산 (gap이 있어도 정확)
-    const calcRating = (clientX) => {
-        if (!wrapRef.current) return 0;
-
-        const rect = wrapRef.current.getBoundingClientRect();
-        const x = clamp(clientX - rect.left, 0, rect.width);
-
-        // 0~5
-        const next = Math.ceil((x / rect.width) * COUNT);
-        return clamp(next, 0, COUNT);
+    const getClickedRating = (e, i) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const isLeft = e.clientX - rect.left < rect.width / 2;
+        return isLeft ? i + 0.5 : i + 1;
     };
 
-    const handleMove = (e) => {
-        const clientX = e.touches?.[0]?.clientX ?? e.clientX;
-        setRating(calcRating(clientX));
+    const handleClick = async (e, i) => {
+        const newRating = getClickedRating(e, i);
+        setRating(newRating);
+        try {
+            await patchRating(bookId, newRating);
+        } catch (error) {
+            alert(error.response?.data?.message || "평점 저장에 실패했습니다.");
+            setRating(initialRating ?? 0);
+        }
     };
-
-    const startDrag = (e) => {
-        setDragging(true);
-        handleMove(e);
-    };
-
-    const stopDrag = () => setDragging(false);
 
     return (
-        <BR.Overlay>
-            <BR.BookRating>
+        <BR.Overlay onClick={onClose}>
+            <BR.BookRating onClick={(e) => e.stopPropagation()}>
                 <BR.CloseIcon src={close} onClick={onClose} />
 
                 <BR.Content>
                     <BR.Title>
                         이번 책은 어떠셨나요? <br /> 평점을 남겨주세요!
                     </BR.Title>
-
                     <BR.SubTitle>
                         남긴 평점은 서비스 개발에 도움이 됩니다.
                     </BR.SubTitle>
 
-                    {/* ✅ 별을 "교체 렌더링" */}
-                    <BR.RatingWrapper
-                        ref={wrapRef}
-                        onMouseDown={startDrag}
-                        onMouseMove={(e) => dragging && handleMove(e)}
-                        onMouseUp={stopDrag}
-                        onMouseLeave={stopDrag}
-                        onTouchStart={startDrag}
-                        onTouchMove={(e) => dragging && handleMove(e)}
-                        onTouchEnd={stopDrag}
-                    >
+                    <BR.RatingWrapper>
                         {[...Array(COUNT)].map((_, i) => {
-                            const value = i + 1;
-                            const filled = value <= rating;
-
+                            const fill = Math.min(1, Math.max(0, rating - i));
                             return (
                                 <BR.StarButton
                                     key={i}
                                     type="button"
-                                    onClick={() => setRating(value)}
-                                    aria-label={`${value}점`}
+                                    onClick={(e) => handleClick(e, i)}
                                 >
-                                    {filled ? (
-                                        <BR.StarFull />
-                                    ) : (
-                                        <BR.StarEmpty />
-                                    )}
+                                    <div style={{ position: "relative", display: "inline-block" }}>
+                                        <BR.StarImg src={star} alt="" draggable={false} />
+                                        <div style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                            width: `${fill * 100}%`,
+                                            overflow: "hidden",
+                                        }}>
+                                            <BR.StarImg src={starFull} alt="" draggable={false} />
+                                        </div>
+                                    </div>
                                 </BR.StarButton>
                             );
                         })}
                     </BR.RatingWrapper>
-
-                    {/* (선택) 점수 표시 */}
-                    {/* <div>{rating} / 5</div> */}
                 </BR.Content>
             </BR.BookRating>
         </BR.Overlay>

@@ -6,6 +6,7 @@ import Signin from "./pages/auth/Signin";
 import Signup from "./pages/auth/Signup";
 
 import Detail from "./pages/books/Detail";
+import DetailDefault from "./pages/books/DetailDefault";
 import List from "./pages/books/List";
 import Reader from "./pages/books/Reader";
 
@@ -39,6 +40,7 @@ function App() {
                     <Route path="/books" element={<List />} />
                     <Route path="/reader/:teamId/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
+                    <Route path="/books/info/:bookId" element={<DetailDefault />} />
 
                     <Route path="/invite/:bookId" element={<Invite />} />
                     <Route path="/edit/:teamId" element={<EditTeam />} />
