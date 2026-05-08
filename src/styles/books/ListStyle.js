@@ -6,6 +6,7 @@ export const List = styled.div`
     flex-direction: column;
     align-items: center;
     min-height: 90vh;
+    padding-bottom: 70px;
 `;
 
 export const BookGrid = styled.div`

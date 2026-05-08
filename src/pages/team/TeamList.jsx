@@ -12,6 +12,7 @@ function TeamList() {
                 const data = await getTeamList();
                 const mapped = data.teams.map((team) => ({
                     id: team.teamId,
+                    bookId: team.bookId,
                     bookImage: team.bookImage,
                     teamName: team.teamName,
                     bookTitle: team.bookTitle,

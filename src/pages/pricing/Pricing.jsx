@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as P from "../../styles/pricing/PricingStyle";
 import { paymentReady } from "../../api/payment";
 
-import Check from "../../assets/images/check.png";
+import Check from "../../assets/images/Check.png";
 import price1 from "../../assets/images/price_1.png";
 import price2 from "../../assets/images/price_2.png";
 import price3 from "../../assets/images/price_3.png";
@@ -16,8 +16,10 @@ function Pricing() {
             const data = await paymentReady(planId);
             sessionStorage.setItem("payment_tid", data.tid);
             window.location.href = data.next_redirect_pc_url;
-        } catch {
-            navigate("/payment/success");
+        } catch (error) {
+            navigate("/payment/success", {
+                state: { message: error.response?.data?.message ?? null },
+            });
         }
     };
 

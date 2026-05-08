@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as S from "../styles/components/SearchBoxStyle";
 
-import search from "../assets/images/search.png";
+import search from "../assets/images/Search.png";
 import back from "../assets/images/X.png";
 
 function SearchBox({ onSearch }) {

@@ -83,6 +83,7 @@ export const ButtonWrapper = styled.div`
     align-items: center;
     width: 255px;
     height: 40px;
+    margin-top: 16px;
 `;
 
 export const AcceptButton = styled.button`

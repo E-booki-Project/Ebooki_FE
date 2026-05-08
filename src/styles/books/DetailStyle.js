@@ -22,11 +22,14 @@ export const CoverWrapper = styled.div`
     position: relative;
     width: 461px;
     height: 680px;
+    overflow: hidden;
 `;
 
 export const CoverImage = styled.img`
     width: 100%;
+    height: 100%;
     display: block;
+    object-fit: cover;
     border-radius: 0 0 140px 0;
 `;
 
@@ -119,8 +122,11 @@ export const ReadButton = styled.div`
     border-radius: 8px;
     color: ${colors.white};
     ${typography.bodyBaseSingle};
-    padding: 12px;
     margin-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 `;
 
 export const NoteSection = styled.section`
@@ -163,25 +169,24 @@ export const NoteList = styled.div`
 `;
 
 export const NoteCard = styled.div`
-    display: flex;
     background-color: ${colors.white};
-    padding: 24px;
+    padding: 20px 24px;
     border-radius: 8px;
     border: solid 1px ${colors.grayMedium};
     width: 516px;
-    justify-content: center;
-    align-items: center;
     margin-left: 35px;
-    display: block;
+    position: relative;
+    overflow: hidden;
 `;
 
 export const NoteLeftBar = styled.div`
-    width: 52px;
-    height: 24px;
-    background-color: ${colors.blue};
-    opacity: 50%;
     position: absolute;
-    left: 0px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background-color: ${colors.blue};
+    opacity: 0.7;
 `;
 
 export const NoteContent = styled.div`
