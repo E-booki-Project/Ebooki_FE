@@ -1,11 +1,14 @@
 import React from "react";
 import * as PV from "../../styles/mypage/ProfileViewStyle";
+import { getUserInfo } from "../../utils/authStorage";
 
 import edit from "../../assets/images/edit.png";
-import user from "../../assets/images/user_blue.png";
+import defaultUser from "../../assets/images/user_blue.png";
 import tape from "../../assets/images/tape_blue.png";
 
 function ProfileView({ onEdit }) {
+    const userInfo = getUserInfo();
+
     return (
         <PV.ProfileView>
             <PV.EditButton onClick={onEdit}>
@@ -13,8 +16,8 @@ function ProfileView({ onEdit }) {
                 프로필 수정
             </PV.EditButton>
             <PV.Profile>
-                <PV.ProfileIcon src={user} />
-                <PV.ProfileName>닉네임</PV.ProfileName>
+                <PV.ProfileIcon src={userInfo?.profileImage || defaultUser} />
+                <PV.ProfileName>{userInfo?.nickname ?? "닉네임"}</PV.ProfileName>
             </PV.Profile>
             <PV.Book>
                 <PV.BookTape src={tape} />

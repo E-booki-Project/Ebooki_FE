@@ -1,50 +1,92 @@
 import React, { useRef, useState, useEffect } from "react";
 import * as PE from "../../styles/mypage/ProfileEditStyle";
+import { getUserInfo, updateUserInfo } from "../../utils/authStorage";
+import {
+    getProfilePresignedUrl,
+    uploadToS3,
+    updateProfileImage,
+    updateNickname,
+    updatePassword,
+} from "../../api/mypage";
 
 import plus from "../../assets/images/plus_gray.png";
-import user from "../../assets/images/user_blue.png";
+import defaultUser from "../../assets/images/user_blue.png";
 import back from "../../assets/images/back.png";
 
-function ProfileEdit({ onCancel }) {
+function ProfileEdit({ onCancel, onSave }) {
     const fileRef = useRef(null);
+    const userInfo = getUserInfo();
 
-    const [previewUrl, setPreviewUrl] = useState(user);
-    const [profileImage, setProfileImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(userInfo?.profileImage || defaultUser);
+    const [newImageFile, setNewImageFile] = useState(null);
+    const [nickname, setNickname] = useState(userInfo?.nickname ?? "");
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handlePickImage = () => {
-        fileRef.current.click();
-    };
+    useEffect(() => {
+        return () => {
+            if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setProfileImage(file);
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
+        setNewImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
     };
 
-    useEffect(() => {
-        return () => {
-            if (previewUrl?.startsWith("blob:")) {
-                URL.revokeObjectURL(previewUrl);
-            }
-        };
-    }, [previewUrl]);
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const editfd = new FormData();
-        if (profileImage) editfd.append("profileImage", profileImage);
-        console.log("profileImage:", profileImage);
-        console.log([...editfd.entries()]);
+
+        if (newPassword && newPassword !== passwordConfirm) {
+            alert("새 비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const updates = {};
+
+            if (newImageFile) {
+                const { presignedUrl, fileKey } = await getProfilePresignedUrl(
+                    newImageFile.name,
+                    newImageFile.type
+                );
+                await uploadToS3(presignedUrl, newImageFile);
+                await updateProfileImage(fileKey);
+                updates.profileImage = fileKey;
+            }
+
+            if (nickname !== (userInfo?.nickname ?? "")) {
+                await updateNickname(nickname);
+                updates.nickname = nickname;
+            }
+
+            if (newPassword) {
+                await updatePassword(currentPassword, newPassword);
+            }
+
+            if (Object.keys(updates).length > 0) {
+                updateUserInfo(updates);
+            }
+
+            onSave();
+        } catch (error) {
+            alert(error.response?.data?.message || "수정에 실패했습니다.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <PE.ProfileEdit>
             <PE.Header>
-                <img src={back} onClick={onCancel} />
+                <img src={back} onClick={onCancel} alt="뒤로가기" />
             </PE.Header>
-            <PE.ProfileWrapper type="button" onClick={handlePickImage}>
+            <PE.ProfileWrapper type="button" onClick={() => fileRef.current.click()}>
                 <PE.ProfileImg src={previewUrl} />
                 <PE.ProfileIcon src={plus} />
             </PE.ProfileWrapper>
@@ -60,23 +102,48 @@ function ProfileEdit({ onCancel }) {
                         <PE.InputLabel>이메일</PE.InputLabel>
                         <PE.InputFeild
                             readOnly
-                            value="booki@example.com"
+                            value={userInfo?.email ?? ""}
                             style={{ border: "none", padding: "16px 0px" }}
                         />
                     </PE.InputWrapper>
                     <PE.InputWrapper>
                         <PE.InputLabel>닉네임</PE.InputLabel>
-                        <PE.InputFeild placeholder="ebooki" />
+                        <PE.InputFeild
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            placeholder="닉네임을 입력하세요"
+                        />
                     </PE.InputWrapper>
                     <PE.InputWrapper>
-                        <PE.InputLabel>비밀번호</PE.InputLabel>
-                        <PE.InputFeild placeholder="영문, 숫자, 특수문자 포함 8자 이상" />
+                        <PE.InputLabel>현재 비밀번호</PE.InputLabel>
+                        <PE.InputFeild
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            placeholder="현재 비밀번호"
+                        />
+                    </PE.InputWrapper>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>새 비밀번호</PE.InputLabel>
+                        <PE.InputFeild
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                        />
                     </PE.InputWrapper>
                     <PE.InputWrapper>
                         <PE.InputLabel>비밀번호 확인</PE.InputLabel>
-                        <PE.InputFeild placeholder="영문, 숫자, 특수문자 포함 8자 이상" />
+                        <PE.InputFeild
+                            type="password"
+                            value={passwordConfirm}
+                            onChange={(e) => setPasswordConfirm(e.target.value)}
+                            placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                        />
                     </PE.InputWrapper>
-                    <PE.EditButton type="submit">수정 완료</PE.EditButton>
+                    <PE.EditButton type="submit" disabled={isLoading}>
+                        {isLoading ? "저장 중..." : "수정 완료"}
+                    </PE.EditButton>
                 </PE.Form>
                 <PE.WithdrawButton type="button">회원 탈퇴</PE.WithdrawButton>
             </PE.AccountSettings>
