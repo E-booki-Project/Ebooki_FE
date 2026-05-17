@@ -33,7 +33,7 @@ export const EditIcon = styled.img`
 
 export const Profile = styled.div`
     margin-top: 113px;
-    margin-bottom: 60px;
+    margin-bottom: 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,14 +51,10 @@ export const ProfileName = styled.div`
 `;
 
 export const Book = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     background-color: ${colors.white};
-    padding: 24px;
+    padding: 30px;
     border-radius: 8px;
     width: 453px;
-    display: block;
     box-shadow: 0px 1px 9.7px rgba(0, 0, 0, 0.1);
     position: relative;
 `;
@@ -70,12 +66,11 @@ export const BookTape = styled.img`
     left: calc(50% - 40.98px);
 `;
 
-export const BookContent = styled.div`
+export const BookContent = styled.span`
     ${typography.bodySmall};
     font-size: 13px;
     white-space: pre-wrap;
     color: ${colors.black};
-    display: inline;
     padding: 0 2px;
     box-shadow: inset 0 -1.1em 0 rgba(137, 209, 217, 0.3);
     box-decoration-break: clone;

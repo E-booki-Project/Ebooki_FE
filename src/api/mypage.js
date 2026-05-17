@@ -12,9 +12,7 @@ export const getProfilePresignedUrl = async (fileName, contentType) => {
 };
 
 export const uploadToS3 = async (presignedUrl, file) => {
-    await axios.put(presignedUrl, file, {
-        headers: { "Content-Type": file.type },
-    });
+    await axios.put(presignedUrl, file, { headers: { "Content-Type": file.type } });
 };
 
 export const updateProfileImage = async (profileImage) => {

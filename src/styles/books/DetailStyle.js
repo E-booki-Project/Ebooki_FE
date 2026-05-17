@@ -22,7 +22,6 @@ export const CoverWrapper = styled.div`
     position: relative;
     width: 461px;
     height: 680px;
-    overflow: hidden;
 `;
 
 export const CoverImage = styled.img`

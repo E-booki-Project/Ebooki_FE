@@ -18,7 +18,7 @@ export const Header = styled.div`
 `;
 
 export const ProfileWrapper = styled.button`
-    width: 170px;
+    /* width: 170px; */
     height: 170px;
     border-radius: 50%;
     border: none;
@@ -81,6 +81,7 @@ export const InputFeild = styled.input`
     border: 1px solid ${colors.grayMedium};
     border-radius: 8px;
     padding: 12px 16px;
+    outline: none;
     &::placeholder {
         color: ${colors.grayLight};
         ${typography.bodyBaseSingle};
@@ -90,7 +91,7 @@ export const InputFeild = styled.input`
 export const EditButton = styled.button`
     width: 407px;
     height: 32px;
-    background-color: ${colors.grayLight};
+    background-color: ${colors.grayMediumLight};
     border: none;
     border-radius: 8px;
     color: ${colors.black};

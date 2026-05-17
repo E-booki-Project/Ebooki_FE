@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import * as PE from "../../styles/mypage/ProfileEditStyle";
 import { getUserInfo, updateUserInfo } from "../../utils/authStorage";
 import {
@@ -24,12 +24,6 @@ function ProfileEdit({ onCancel, onSave }) {
     const [newPassword, setNewPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        return () => {
-            if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-        };
-    }, [previewUrl]);
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
@@ -87,7 +81,10 @@ function ProfileEdit({ onCancel, onSave }) {
                 <img src={back} onClick={onCancel} alt="뒤로가기" />
             </PE.Header>
             <PE.ProfileWrapper type="button" onClick={() => fileRef.current.click()}>
-                <PE.ProfileImg src={previewUrl} />
+                <PE.ProfileImg
+                    src={previewUrl}
+                    onError={(e) => { e.currentTarget.src = defaultUser; }}
+                />
                 <PE.ProfileIcon src={plus} />
             </PE.ProfileWrapper>
             <PE.ProfileInput
