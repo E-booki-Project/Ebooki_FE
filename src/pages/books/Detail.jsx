@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
 import { getBook, getBookTimeline, toggleLike } from "../../api/book";
 
@@ -9,26 +9,31 @@ import star from "../../assets/images/star.png";
 import starFull from "../../assets/images/star_full.png";
 import bookmark from "../../assets/images/bookmark.png";
 import link from "../../assets/images/link_black.png";
+import highlight from "../../assets/images/highlight.png";
 
 function Detail() {
     const { bookId } = useParams();
     const navigate = useNavigate();
+    const { state } = useLocation();
+    const teamId = state?.teamId;
+    const newRatingFromNav = state?.newRating ?? null;
     const [bookData, setBookData] = useState(null);
     const [liked, setLiked] = useState(false);
     const [timeline, setTimeline] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
     const [isRatingOpen, setIsRatingOpen] = useState(false);
 
+    const fetchBook = async () => {
+        try {
+            const data = await getBook(bookId);
+            setBookData(newRatingFromNav != null ? { ...data, myRating: newRatingFromNav } : data);
+            setLiked(data.liked);
+        } catch (error) {
+            alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
+        }
+    };
+
     useEffect(() => {
-        const fetchBook = async () => {
-            try {
-                const data = await getBook(bookId);
-                setBookData(data);
-                setLiked(data.liked);
-            } catch (error) {
-                alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
-            }
-        };
         const fetchTimeline = async () => {
             try {
                 const data = await getBookTimeline(bookId);
@@ -39,7 +44,8 @@ function Detail() {
         };
         fetchBook();
         fetchTimeline();
-    }, [bookId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bookId, newRatingFromNav]);
 
     const visibleItems = useMemo(() => {
         if (activeTab === "highlight") return timeline.filter((item) => item.type === "HIGHLIGHT");
@@ -54,7 +60,15 @@ function Detail() {
     return (
         <D.Detail>
             {isRatingOpen && (
-                <BookRatingModal bookId={bookId} initialRating={bookData?.rating} onClose={() => setIsRatingOpen(false)} />
+                <BookRatingModal
+                    bookId={bookId}
+                    initialRating={bookData?.myRating ?? bookData?.rating}
+                    onClose={() => setIsRatingOpen(false)}
+                    onRated={() => {
+                        setIsRatingOpen(false);
+                        fetchBook();
+                    }}
+                />
             )}
             {/* 책 전체 layout */}
             <D.LeftPanel>
@@ -87,20 +101,23 @@ function Detail() {
 
                     <D.RatingWrapper onClick={() => setIsRatingOpen(true)}>
                         {Array.from({ length: 5 }).map((_, index) => {
-                            const fill = Math.min(1, Math.max(0, (bookData?.rating ?? 0) - index));
+                            const displayRating = bookData?.myRating ?? bookData?.rating ?? 0;
+                            const fill = Math.min(1, Math.max(0, displayRating - index));
                             return (
                                 <div key={index} style={{ position: "relative", display: "inline-block" }}>
                                     <D.StarIcon src={star} alt="star" />
-                                    <div style={{ position: "absolute", top: 0, left: 0, width: `${fill * 100}%`, overflow: "hidden" }}>
-                                        <D.StarIcon src={starFull} alt="star-full" />
-                                    </div>
+                                    {fill > 0 && (
+                                        <div style={{ position: "absolute", top: 0, left: 0, width: `${fill * 100}%`, overflow: "hidden" }}>
+                                            <D.StarIcon src={starFull} alt="star-full" />
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
-                        <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.rating}</D.RatingScore>
+                        <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.myRating ?? bookData?.rating ?? ""}</D.RatingScore>
                     </D.RatingWrapper>
 
-                    <D.ReadButton onClick={() => navigate(`/invite/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
+                    <D.ReadButton onClick={() => teamId && navigate(`/reader/${teamId}/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
                 </D.BookInfoSection>
 
                 {/* 독서 메모 */}
@@ -133,7 +150,7 @@ function Detail() {
                                 <D.NoteCard
                                     key={`${item.type}-${item.createdAt}`}
                                 >
-                                    {isHighlightItem && <D.NoteLeftBar />}
+                                    {isHighlightItem && <D.NoteHighlight src={highlight} alt="" />}
 
                                     <D.NoteContent>
                                         <D.NoteText>{item.text}</D.NoteText>
@@ -145,7 +162,7 @@ function Detail() {
                                                 <div />
                                             )}
                                             <D.NoteDate>
-                                                {new Date(item.createdAt).toLocaleString()}
+                                                {(() => { const d = new Date(item.createdAt); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}  ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; })()}
                                             </D.NoteDate>
                                         </D.NoteFooter>
                                     </D.NoteContent>

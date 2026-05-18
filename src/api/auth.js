@@ -5,16 +5,24 @@ export const login = async (data) => {
     return response.data;
 };
 
-export const signup = async (formData) => {
-    const response = await axiosInstance.post("/auth/signup", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
-
+export const signup = async ({ email, password, profileImage }) => {
+    const response = await axiosInstance.post("/auth/signup", { email, password, profileImage });
     return response.data;
 };
 
-export const logout = async () => {};
+export const getUser = async () => {
+    const response = await axiosInstance.get("/auth/users");
+    return response.data;
+};
+
+export const logout = async () => {
+    const response = await axiosInstance.post("/auth/logout");
+    return response.data;
+};
 
 export const findpassword = async () => {};
+
+export const deleteAccount = async () => {
+    const response = await axiosInstance.delete("/auth/delete");
+    return response.data;
+};

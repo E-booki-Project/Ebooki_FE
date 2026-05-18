@@ -5,26 +5,20 @@ import help from "../assets/images/help.png";
 import book from "../assets/images/book_grey.png";
 import more from "../assets/images/chevronright.png";
 
-function BookPlanProgress() {
+function BookPlanProgress({ data }) {
     const navigate = useNavigate();
 
-    const handlePlan = () => {
-        navigate("/pricing");
-    };
+    const planName = data?.planName ?? "-";
+    const totalCount = data?.totalBookCount ?? 0;
+    const usedCount = data?.usedBookCount ?? 0;
 
-    const totalCount = 12;
-    const usedCount = 2;
-
-    const progressItems = Array.from(
-        { length: totalCount },
-        (_, index) => index,
-    );
+    const progressItems = Array.from({ length: totalCount }, (_, i) => i);
 
     return (
         <BP.BookPlanProgress>
             <BP.ProgressCard>
                 <BP.Header>
-                    <BP.PlanTitle>요금제 이름</BP.PlanTitle>
+                    <BP.PlanTitle>{planName}</BP.PlanTitle>
                     <BP.PlanIcon src={help} alt="도움말" />
                 </BP.Header>
 
@@ -50,7 +44,7 @@ function BookPlanProgress() {
                     <BP.PlanIcon src={book} alt="책 아이콘" />
                     요금제 구매하기
                 </BP.PlanText>
-                <BP.PlanIcon src={more} alt="더보기" onClick={handlePlan} />
+                <BP.PlanIcon src={more} alt="더보기" onClick={() => navigate("/pricing")} />
             </BP.Footer>
         </BP.BookPlanProgress>
     );

@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as TC from "../styles/components/TeamCardStyle";
+import { getTeamDetail } from "../api/team";
 import more from "../assets/images/more.png";
-import starOn from "../assets/images/star.png";
-import starOff from "../assets/images/star_full.png";
+import starOn from "../assets/images/star_full.png";
+import starOff from "../assets/images/star.png";
 
 function TeamCard({ team }) {
     const navigate = useNavigate();
@@ -32,9 +33,16 @@ function TeamCard({ team }) {
         setIsMenuOpen(false);
     };
 
-    const handleRecordClick = () => {
-        navigate(`/books/detail/${team.bookId}`);
+    const handleRecordClick = async () => {
         setIsMenuOpen(false);
+        try {
+            const detail = await getTeamDetail(team.id);
+            const bookId = detail.bookData?.bookId ?? detail.bookData?.id;
+            if (!bookId) { alert("도서 정보를 찾을 수 없습니다."); return; }
+            navigate(`/books/detail/${bookId}`, { state: { teamId: team.id } });
+        } catch {
+            alert("도서 정보를 불러오는데 실패했습니다.");
+        }
     };
     return (
         <TC.TeamCard>
@@ -72,7 +80,7 @@ function TeamCard({ team }) {
                     {Array.from({ length: 5 }, (_, index) => (
                         <TC.StarIcon
                             key={index}
-                            src={index < team.rating ? starOn : starOff}
+                            src={team.rating != null && index < team.rating ? starOn : starOff}
                             alt="별점"
                         />
                     ))}

@@ -45,7 +45,7 @@ export const Header = styled.div`
     align-items: center;
     justify-content: space-between;
     flex-direction: row;
-    margin-bottom: 52px;
+    margin-bottom: 42px;
 `;
 
 export const PlanTitle = styled.div`

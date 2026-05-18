@@ -16,8 +16,8 @@ function TeamList() {
                     bookImage: team.bookImage,
                     teamName: team.teamName,
                     bookTitle: team.bookTitle,
-                    rating: Math.round(team.averageRating),
-                    progress: team.progressPercentage,
+                    rating: team.averageRating != null ? Math.round(team.averageRating) : null,
+                    progress: team.progressPercentage ?? 0,
                     members: team.memberProfiles.map((member, index) => ({
                         id: index,
                         image: member.profileImage,

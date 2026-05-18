@@ -5,7 +5,7 @@ import SearchBox from "../../components/SearchBox";
 import SortTabs from "../../components/SortTabs";
 import { getBooks, searchBooks } from "../../api/book";
 
-import star from "../../assets/images/star.png";
+import star from "../../assets/images/star_full.png";
 import bookCover from "../../assets/images/book.png";
 
 function List() {

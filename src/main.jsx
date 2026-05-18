@@ -4,10 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import GlobalStyle from "./styles/GlobalStyle.js";
+import { UserProvider } from "./context/UserContext.jsx";
 
 createRoot(document.getElementById("root")).render(
     <BrowserRouter>
-        <GlobalStyle />
-        <App />
+        <UserProvider>
+            <GlobalStyle />
+            <App />
+        </UserProvider>
     </BrowserRouter>
 );

@@ -1,26 +1,28 @@
 import React, { useState } from "react";
 import * as BR from "../styles/components/BookRatingModalStyle";
 import { patchRating } from "../api/rating";
+import { getUserInfo } from "../utils/authStorage";
 import close from "../assets/images/X.png";
 import star from "../assets/images/star.png";
 import starFull from "../assets/images/star_full.png";
 
 const COUNT = 5;
 
-function BookRatingModal({ onClose, initialRating, bookId }) {
+function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
     const [rating, setRating] = useState(initialRating ?? 0);
 
-    const getClickedRating = (e, i) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const isLeft = e.clientX - rect.left < rect.width / 2;
-        return isLeft ? i + 0.5 : i + 1;
-    };
+    const getClickedRating = (_e, i) => i + 1;
 
     const handleClick = async (e, i) => {
         const newRating = getClickedRating(e, i);
         setRating(newRating);
         try {
             await patchRating(bookId, newRating);
+            const userId = getUserInfo()?.id ?? "guest";
+            const completed = JSON.parse(localStorage.getItem(`ebookiCompleted_${userId}`) || "{}");
+            completed[String(bookId)] = true;
+            localStorage.setItem(`ebookiCompleted_${userId}`, JSON.stringify(completed));
+            onRated?.(newRating);
         } catch (error) {
             alert(error.response?.data?.message || "평점 저장에 실패했습니다.");
             setRating(initialRating ?? 0);

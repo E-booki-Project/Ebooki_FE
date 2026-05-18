@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SigninStyle";
 import { login } from "../../api/auth";
 import { setAuthStorage } from "../../utils/authStorage";
+import { useUserInfo } from "../../context/useUserInfo";
 import {
     validateEmail,
     validateLoginPassword,
@@ -15,9 +16,11 @@ import kakao from "../../assets/images/kakao.png";
 
 function Signin() {
     const navigate = useNavigate();
+    const { refreshUserInfo } = useUserInfo();
 
     const handlePassword = () => {
-        navigate("/forgotpassword");
+        // navigate("/forgotpassword");
+        navigate("/signup");
     };
 
     const [form, setForm] = useState({
@@ -106,8 +109,9 @@ function Signin() {
                     refreshToken,
                     userInfo: userInfoDTO,
                 });
+                await refreshUserInfo();
 
-                navigate("/");
+                navigate("/home");
             } else {
                 alert(result.message || "로그인에 실패했습니다.");
             }
@@ -161,7 +165,7 @@ function Signin() {
                     </S.SigninButton>
 
                     <S.ForgotPassword onClick={handlePassword}>
-                        비밀번호를 잊어버렸어요 〉
+                        회원가입 〉
                     </S.ForgotPassword>
                 </S.Form>
             </S.EmailContainer>

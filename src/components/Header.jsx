@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as H from "../styles/components/HeaderStyle";
+import { useUserInfo } from "../context/useUserInfo";
+import { logout as logoutApi } from "../api/auth";
 import logo from "../assets/images/logo.png";
-import profile from "../assets/images/user_pink.png";
+import defaultProfile from "../assets/images/user_pink.png";
 
-function AppHeader({ isLoggedIn = true, onLogout }) {
+function AppHeader() {
     const navigate = useNavigate();
+    const { userInfo, logout } = useUserInfo();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const profileRef = useRef(null);
-
-    const handleAuthClick = () => {
-        navigate("/signin");
-    };
 
     const handleProfileClick = () => {
         setIsDropdownOpen((prev) => !prev);
@@ -22,12 +21,12 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
         navigate("/mypage");
     };
 
-    const handleLogoutClick = () => {
+    const handleLogoutClick = async () => {
         setIsDropdownOpen(false);
-
-        if (onLogout) {
-            onLogout();
-        } else {
+        try {
+            await logoutApi();
+        } finally {
+            logout();
             navigate("/signin");
         }
     };
@@ -51,7 +50,7 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
 
     return (
         <H.Header>
-            <H.Logo src={logo} alt="logo" onClick={() => navigate("/")} />
+            <H.Logo src={logo} alt="logo" onClick={() => navigate("/home")} />
 
             <H.MenuWrapper>
                 <H.MenuNav>
@@ -62,12 +61,13 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
                     <H.MenuLink to="/teams">팀</H.MenuLink>
                 </H.MenuNav>
 
-                {isLoggedIn ? (
+                {userInfo ? (
                     <H.ProfileWrapper ref={profileRef}>
                         <H.ProfileImage
-                            src={profile}
+                            src={userInfo?.profileImage || defaultProfile}
                             alt="프로필"
                             onClick={handleProfileClick}
+                            onError={(e) => { e.currentTarget.src = defaultProfile; }}
                         />
 
                         {isDropdownOpen && (
@@ -85,7 +85,7 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
                     <H.LoginBtn
                         as="button"
                         type="button"
-                        onClick={handleAuthClick}
+                        onClick={() => navigate("/signin")}
                     >
                         로그인
                     </H.LoginBtn>

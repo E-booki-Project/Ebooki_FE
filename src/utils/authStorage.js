@@ -30,3 +30,8 @@ export const clearAuthStorage = () => {
 export const isLoggedIn = () => {
     return !!localStorage.getItem(ACCESS_TOKEN_KEY);
 };
+
+export const updateUserInfo = (partial) => {
+    const current = getUserInfo() ?? {};
+    localStorage.setItem(USER_INFO_KEY, JSON.stringify({ ...current, ...partial }));
+};
