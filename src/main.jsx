@@ -4,12 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import GlobalStyle from "./styles/GlobalStyle.js";
+import { UserProvider } from "./context/UserContext.jsx";
 
 createRoot(document.getElementById("root")).render(
-    <StrictMode>
-        <BrowserRouter>
+    <BrowserRouter>
+        <UserProvider>
             <GlobalStyle />
             <App />
-        </BrowserRouter>
-    </StrictMode>
+        </UserProvider>
+    </BrowserRouter>
 );

@@ -6,11 +6,12 @@ import Signin from "./pages/auth/Signin";
 import Signup from "./pages/auth/Signup";
 
 import Detail from "./pages/books/Detail";
+import DetailDefault from "./pages/books/DetailDefault";
 import List from "./pages/books/List";
 import Reader from "./pages/books/Reader";
-import Search from "./pages/books/Search";
 
 import Invite from "./pages/team/Invite";
+import EditTeam from "./pages/team/EditTeam";
 import Join from "./pages/team/Join";
 import TeamList from "./pages/team/TeamList";
 
@@ -18,6 +19,10 @@ import Pricing from "./pages/pricing/Pricing";
 import PaymentStatus from "./pages/pricing/PaymentStatus";
 
 import Home from "./pages/home/Home";
+
+import Mypage from "./pages/mypage/Mypage";
+import ProfileView from "./pages/mypage/ProfileView";
+import ProfileEdit from "./pages/mypage/ProfileEdit";
 
 import AppLayout from "./layouts/AppLayout";
 
@@ -30,21 +35,30 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
 
-                {/* 헤더가 들어가는 모든 페이지 */}
+                {/* 헤더 있는 페이지 */}
                 <Route element={<AppLayout />}>
                     <Route path="/books" element={<List />} />
-                    <Route path="/reader/:bookId" element={<Reader />} />
+                    <Route path="/reader/:teamId/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
-                    <Route path="/invite/:teamId" element={<Invite />} />
-                    <Route path="/join/:teamId" element={<Join />} />
+                    <Route path="/books/info/:bookId" element={<DetailDefault />} />
+
+                    <Route path="/invite/:bookId" element={<Invite />} />
+                    <Route path="/edit/:teamId" element={<EditTeam />} />
+                    <Route path="/join/:teamId" element={<Join />} /> {/* teamId = 실제론 토큰 보낼예정 */}
                     <Route path="/teams" element={<TeamList />} />
+
                     <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/books/search" element={<Search />} />
-                    <Route path="/" element={<Home />} />
                     <Route
-                        path="/payments/callback"
+                        path="/payment/success"
                         element={<PaymentStatus />}
                     />
+
+                    <Route path="/" element={<Home />} />
+
+                    <Route path="/mypage" element={<Mypage />}>
+                        <Route index element={<ProfileView />} />
+                        <Route path="edit" element={<ProfileEdit />} />
+                    </Route>
                 </Route>
             </Routes>
         </div>

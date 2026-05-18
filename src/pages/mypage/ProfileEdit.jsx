@@ -1,0 +1,170 @@
+import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import * as PE from "../../styles/mypage/ProfileEditStyle";
+import { useUserInfo } from "../../context/UserContext";
+import {
+    getProfilePresignedUrl,
+    uploadToS3,
+    updateProfileImage,
+    updateNickname,
+    updatePassword,
+} from "../../api/mypage";
+import { deleteAccount } from "../../api/auth";
+import { clearAuthStorage } from "../../utils/authStorage";
+
+import plus from "../../assets/images/plus_gray.png";
+import defaultUser from "../../assets/images/user_pink.png";
+import back from "../../assets/images/back.png";
+
+function ProfileEdit({ onCancel, onSave }) {
+    const fileRef = useRef(null);
+    const navigate = useNavigate();
+    const { userInfo, setUserInfo, refreshUserInfo } = useUserInfo();
+
+    const [previewUrl, setPreviewUrl] = useState(userInfo?.profileImage || defaultUser);
+    const [newImageFile, setNewImageFile] = useState(null);
+    const [nickname, setNickname] = useState(userInfo?.nickname ?? "");
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setNewImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (newPassword && newPassword !== passwordConfirm) {
+            alert("새 비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            let updatedUser = null;
+
+            if (newImageFile) {
+                const { presignedUrl, fileKey } = await getProfilePresignedUrl(
+                    newImageFile.name,
+                    newImageFile.type
+                );
+                await uploadToS3(presignedUrl, newImageFile);
+                const result = await updateProfileImage(fileKey);
+                updatedUser = result?.data ?? null;
+            }
+
+            if (nickname !== (userInfo?.nickname ?? "")) {
+                await updateNickname(nickname);
+            }
+
+            if (newPassword) {
+                await updatePassword(currentPassword, newPassword);
+            }
+
+            if (updatedUser) {
+                setUserInfo(updatedUser);
+            } else {
+                await refreshUserInfo();
+            }
+
+            onSave();
+        } catch (error) {
+            alert(error.response?.data?.message || "수정에 실패했습니다.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <PE.ProfileEdit>
+            <PE.Header>
+                <img src={back} onClick={onCancel} alt="뒤로가기" />
+            </PE.Header>
+            <PE.ProfileWrapper type="button" onClick={() => fileRef.current.click()}>
+                <PE.ProfileImg
+                    src={previewUrl}
+                    onError={(e) => { e.currentTarget.src = defaultUser; }}
+                />
+                <PE.ProfileIcon src={plus} />
+            </PE.ProfileWrapper>
+            <PE.ProfileInput
+                type="file"
+                accept="image/*"
+                ref={fileRef}
+                onChange={handleImageChange}
+            />
+            <PE.AccountSettings>
+                <PE.Form onSubmit={handleSubmit}>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>이메일</PE.InputLabel>
+                        <PE.InputFeild
+                            readOnly
+                            value={userInfo?.email ?? ""}
+                            style={{ border: "none", padding: "16px 0px" }}
+                        />
+                    </PE.InputWrapper>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>닉네임</PE.InputLabel>
+                        <PE.InputFeild
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            placeholder="닉네임을 입력하세요"
+                        />
+                    </PE.InputWrapper>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>현재 비밀번호</PE.InputLabel>
+                        <PE.InputFeild
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            placeholder="현재 비밀번호"
+                        />
+                    </PE.InputWrapper>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>새 비밀번호</PE.InputLabel>
+                        <PE.InputFeild
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                        />
+                    </PE.InputWrapper>
+                    <PE.InputWrapper>
+                        <PE.InputLabel>비밀번호 확인</PE.InputLabel>
+                        <PE.InputFeild
+                            type="password"
+                            value={passwordConfirm}
+                            onChange={(e) => setPasswordConfirm(e.target.value)}
+                            placeholder="영문, 숫자, 특수문자 포함 8자 이상"
+                        />
+                    </PE.InputWrapper>
+                    <PE.EditButton type="submit" disabled={isLoading}>
+                        {isLoading ? "저장 중..." : "수정 완료"}
+                    </PE.EditButton>
+                </PE.Form>
+                <PE.WithdrawButton
+                    type="button"
+                    onClick={async () => {
+                        if (!window.confirm("정말 탈퇴하시겠습니까? 모든 데이터가 삭제됩니다.")) return;
+                        try {
+                            await deleteAccount();
+                            clearAuthStorage();
+                            navigate("/signin", { replace: true });
+                        } catch (error) {
+                            alert(error.response?.data?.message || "회원 탈퇴에 실패했습니다.");
+                        }
+                    }}
+                >
+                    회원 탈퇴
+                </PE.WithdrawButton>
+            </PE.AccountSettings>
+        </PE.ProfileEdit>
+    );
+}
+
+export default ProfileEdit;

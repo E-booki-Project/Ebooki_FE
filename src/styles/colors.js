@@ -12,4 +12,5 @@ export const colors = {
     grayMedium: "#D9D9D9",
     grayLight: "#B3B3B3",
     grayLighter: "#F5F5F5",
+    grayMediumLight: "#e3e3e3",
 };
