@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as PE from "../../styles/mypage/ProfileEditStyle";
 import { useUserInfo } from "../../context/UserContext";
 import {
@@ -8,6 +9,8 @@ import {
     updateNickname,
     updatePassword,
 } from "../../api/mypage";
+import { deleteAccount } from "../../api/auth";
+import { clearAuthStorage } from "../../utils/authStorage";
 
 import plus from "../../assets/images/plus_gray.png";
 import defaultUser from "../../assets/images/user_pink.png";
@@ -15,6 +18,7 @@ import back from "../../assets/images/back.png";
 
 function ProfileEdit({ onCancel, onSave }) {
     const fileRef = useRef(null);
+    const navigate = useNavigate();
     const { userInfo, setUserInfo, refreshUserInfo } = useUserInfo();
 
     const [previewUrl, setPreviewUrl] = useState(userInfo?.profileImage || defaultUser);
@@ -143,7 +147,21 @@ function ProfileEdit({ onCancel, onSave }) {
                         {isLoading ? "저장 중..." : "수정 완료"}
                     </PE.EditButton>
                 </PE.Form>
-                <PE.WithdrawButton type="button">회원 탈퇴</PE.WithdrawButton>
+                <PE.WithdrawButton
+                    type="button"
+                    onClick={async () => {
+                        if (!window.confirm("정말 탈퇴하시겠습니까? 모든 데이터가 삭제됩니다.")) return;
+                        try {
+                            await deleteAccount();
+                            clearAuthStorage();
+                            navigate("/signin", { replace: true });
+                        } catch (error) {
+                            alert(error.response?.data?.message || "회원 탈퇴에 실패했습니다.");
+                        }
+                    }}
+                >
+                    회원 탈퇴
+                </PE.WithdrawButton>
             </PE.AccountSettings>
         </PE.ProfileEdit>
     );

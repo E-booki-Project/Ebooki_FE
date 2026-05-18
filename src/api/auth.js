@@ -23,3 +23,8 @@ export const getUser = async () => {
 export const logout = async () => {};
 
 export const findpassword = async () => {};
+
+export const deleteAccount = async () => {
+    const response = await axiosInstance.delete("/auth/delete");
+    return response.data;
+};

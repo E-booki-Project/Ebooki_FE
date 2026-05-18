@@ -45,6 +45,7 @@ export const Bar = styled.div`
     min-height: 4px;
     background-color: ${({ $color }) => $color};
     border-radius: 4px 4px 0 0;
+    max-width: 100px;
 `;
 
 export const LabelsRow = styled.div`
@@ -55,6 +56,7 @@ export const LabelsRow = styled.div`
 
 export const BarLabelGroup = styled.div`
     flex: 1;
+    max-width: 100px;
     text-align: center;
 `;
 
