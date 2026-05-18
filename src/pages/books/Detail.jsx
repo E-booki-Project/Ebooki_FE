@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
 import { getBook, getBookTimeline, toggleLike } from "../../api/book";
 
@@ -13,6 +13,8 @@ import link from "../../assets/images/link_black.png";
 function Detail() {
     const { bookId } = useParams();
     const navigate = useNavigate();
+    const { state } = useLocation();
+    const teamId = state?.teamId;
     const [bookData, setBookData] = useState(null);
     const [liked, setLiked] = useState(false);
     const [timeline, setTimeline] = useState([]);
@@ -100,7 +102,7 @@ function Detail() {
                         <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.rating}</D.RatingScore>
                     </D.RatingWrapper>
 
-                    <D.ReadButton onClick={() => navigate(`/invite/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
+                    <D.ReadButton onClick={() => teamId && navigate(`/reader/${teamId}/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
                 </D.BookInfoSection>
 
                 {/* 독서 메모 */}

@@ -1,0 +1,49 @@
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { isLoggedIn, getUserInfo } from "../utils/authStorage";
+import { getUser } from "../api/auth";
+
+const UserContext = createContext(null);
+
+export function UserProvider({ children }) {
+    const [userInfo, setUserInfoState] = useState(null);
+
+    const fetchUserInfo = async () => {
+        if (!isLoggedIn()) return;
+        try {
+            const result = await getUser();
+            const users = result.data ?? result;
+            const stored = getUserInfo();
+            let me;
+            if (Array.isArray(users)) {
+                me = users.find(
+                    (u) =>
+                        Number(u.id) === Number(stored?.id) ||
+                        (stored?.email && u.email === stored.email)
+                );
+            } else {
+                me = users;
+            }
+            if (me) setUserInfoState(me);
+        } catch {
+            // token expired or network error
+        }
+    };
+
+    useEffect(() => {
+        fetchUserInfo();
+    }, []);
+
+    const setUserInfo = (info) => {
+        setUserInfoState(info);
+    };
+
+    const refreshUserInfo = () => fetchUserInfo();
+
+    return (
+        <UserContext.Provider value={{ userInfo, setUserInfo, refreshUserInfo }}>
+            {children}
+        </UserContext.Provider>
+    );
+}
+
+export const useUserInfo = () => useContext(UserContext);

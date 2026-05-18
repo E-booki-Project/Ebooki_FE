@@ -72,7 +72,7 @@ export const BookContent = styled.span`
     white-space: pre-wrap;
     color: ${colors.black};
     padding: 0 2px;
-    box-shadow: inset 0 -1.1em 0 rgba(137, 209, 217, 0.3);
+    box-shadow: inset 0 -1.1em 0 ${({ $color }) => $color ?? "rgba(137, 209, 217, 0.3)"};
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 `;

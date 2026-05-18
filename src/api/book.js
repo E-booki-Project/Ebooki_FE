@@ -15,6 +15,11 @@ export const getBookTimeline = async (bookId) => {
     return response.data;
 };
 
+export const getMyBookItems = async (bookId) => {
+    const response = await axiosInstance.get(`/api/books/${bookId}/my`);
+    return response.data;
+};
+
 export const searchBooks = async (q) => {
     const response = await axiosInstance.get("/api/search", { params: { q } });
     return response.data;

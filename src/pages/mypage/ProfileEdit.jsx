@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import * as PE from "../../styles/mypage/ProfileEditStyle";
-import { getUserInfo, updateUserInfo } from "../../utils/authStorage";
+import { useUserInfo } from "../../context/UserContext";
 import {
     getProfilePresignedUrl,
     uploadToS3,
@@ -10,12 +10,12 @@ import {
 } from "../../api/mypage";
 
 import plus from "../../assets/images/plus_gray.png";
-import defaultUser from "../../assets/images/user_blue.png";
+import defaultUser from "../../assets/images/user_pink.png";
 import back from "../../assets/images/back.png";
 
 function ProfileEdit({ onCancel, onSave }) {
     const fileRef = useRef(null);
-    const userInfo = getUserInfo();
+    const { userInfo, setUserInfo, refreshUserInfo } = useUserInfo();
 
     const [previewUrl, setPreviewUrl] = useState(userInfo?.profileImage || defaultUser);
     const [newImageFile, setNewImageFile] = useState(null);
@@ -42,7 +42,7 @@ function ProfileEdit({ onCancel, onSave }) {
 
         setIsLoading(true);
         try {
-            const updates = {};
+            let updatedUser = null;
 
             if (newImageFile) {
                 const { presignedUrl, fileKey } = await getProfilePresignedUrl(
@@ -50,21 +50,22 @@ function ProfileEdit({ onCancel, onSave }) {
                     newImageFile.type
                 );
                 await uploadToS3(presignedUrl, newImageFile);
-                await updateProfileImage(fileKey);
-                updates.profileImage = fileKey;
+                const result = await updateProfileImage(fileKey);
+                updatedUser = result?.data ?? null;
             }
 
             if (nickname !== (userInfo?.nickname ?? "")) {
                 await updateNickname(nickname);
-                updates.nickname = nickname;
             }
 
             if (newPassword) {
                 await updatePassword(currentPassword, newPassword);
             }
 
-            if (Object.keys(updates).length > 0) {
-                updateUserInfo(updates);
+            if (updatedUser) {
+                setUserInfo(updatedUser);
+            } else {
+                await refreshUserInfo();
             }
 
             onSave();

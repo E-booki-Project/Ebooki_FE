@@ -39,7 +39,7 @@ function TeamCard({ team }) {
             const detail = await getTeamDetail(team.id);
             const bookId = detail.bookData?.bookId ?? detail.bookData?.id;
             if (!bookId) { alert("도서 정보를 찾을 수 없습니다."); return; }
-            navigate(`/books/detail/${bookId}`);
+            navigate(`/books/detail/${bookId}`, { state: { teamId: team.id } });
         } catch {
             alert("도서 정보를 불러오는데 실패했습니다.");
         }

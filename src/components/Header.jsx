@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as H from "../styles/components/HeaderStyle";
+import { useUserInfo } from "../context/UserContext";
 import logo from "../assets/images/logo.png";
-import profile from "../assets/images/user_pink.png";
+import defaultProfile from "../assets/images/user_pink.png";
 
 function AppHeader({ isLoggedIn = true, onLogout }) {
     const navigate = useNavigate();
+    const { userInfo } = useUserInfo();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const profileRef = useRef(null);
 
@@ -65,9 +67,10 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
                 {isLoggedIn ? (
                     <H.ProfileWrapper ref={profileRef}>
                         <H.ProfileImage
-                            src={profile}
+                            src={userInfo?.profileImage || defaultProfile}
                             alt="프로필"
                             onClick={handleProfileClick}
+                            onError={(e) => { e.currentTarget.src = defaultProfile; }}
                         />
 
                         {isDropdownOpen && (

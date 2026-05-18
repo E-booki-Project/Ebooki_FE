@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SigninStyle";
 import { login } from "../../api/auth";
 import { setAuthStorage } from "../../utils/authStorage";
+import { useUserInfo } from "../../context/UserContext";
 import {
     validateEmail,
     validateLoginPassword,
@@ -15,6 +16,7 @@ import kakao from "../../assets/images/kakao.png";
 
 function Signin() {
     const navigate = useNavigate();
+    const { refreshUserInfo } = useUserInfo();
 
     const handlePassword = () => {
         navigate("/forgotpassword");
@@ -106,6 +108,7 @@ function Signin() {
                     refreshToken,
                     userInfo: userInfoDTO,
                 });
+                await refreshUserInfo();
 
                 navigate("/");
             } else {

@@ -5,8 +5,9 @@ import ProfileEdit from "./ProfileEdit";
 import BookPlanProgress from "../../components/BookPlanProgress";
 import ReadingAnalysis from "../../components/ReadingAnalysis";
 import { getMypage } from "../../api/mypage";
-import { getTeamList } from "../../api/team";
-import { getBookTimeline } from "../../api/book";
+import { getTeamList, getTeamDetail } from "../../api/team";
+import { getMyBookItems } from "../../api/book";
+import { getUserInfo } from "../../utils/authStorage";
 
 function Mypage() {
     const [mode, setMode] = useState("view");
@@ -14,28 +15,67 @@ function Mypage() {
     const [highlightQuote, setHighlightQuote] = useState(null);
 
     useEffect(() => {
-        getMypage()
-            .then(setMypageData)
-            .catch(console.error);
+        getMypage().then(setMypageData).catch(console.error);
 
-        getTeamList()
-            .then((data) => {
-                const firstTeam = data.teams?.find((t) => t.bookId);
-                if (!firstTeam) return;
-                getBookTimeline(firstTeam.bookId)
-                    .then((timeline) => {
-                        const highlight = timeline.find((item) => item.type === "HIGHLIGHT");
-                        if (highlight) {
-                            setHighlightQuote({
-                                text: highlight.text,
-                                page: highlight.page,
-                                bookTitle: firstTeam.bookTitle,
-                            });
-                        }
+        const loadHighlight = async () => {
+            try {
+                const listData = await getTeamList();
+                const teams = listData.teams ?? [];
+                if (teams.length === 0) return;
+
+                const myUserId = getUserInfo()?.id;
+
+                // 모든 팀 상세 병렬 조회
+                const details = await Promise.all(
+                    teams.map((t) => getTeamDetail(t.teamId).catch(() => null))
+                );
+                // 팀별 bookId + userColor 추출
+                const teamInfos = teams
+                    .map((team, i) => {
+                        const detail = details[i];
+                        const bookId = detail?.teamData?.teamData?.bookId;
+                        const teamUserData = detail?.teamData?.teamUserData ?? [];
+                        const myTeamUser = teamUserData.find(
+                            (u) => Number(u.userId) === Number(myUserId)
+                        );
+                        return {
+                            bookId,
+                            userColor: myTeamUser?.userColor ?? "BLUE",
+                            bookTitle: team.bookTitle,
+                        };
                     })
-                    .catch(console.error);
-            })
-            .catch(console.error);
+                    .filter((t) => t.bookId);
+                // 모든 북 하이라이트 병렬 조회
+                const highlightResults = await Promise.all(
+                    teamInfos.map((info) => getMyBookItems(info.bookId).catch(() => null))
+                );
+                // 전체 하이라이트 수집
+                const allHighlights = [];
+                teamInfos.forEach((info, i) => {
+                    const result = highlightResults[i];
+                    if (!result) return;
+                    const items = Array.isArray(result) ? result : (result?.timeline ?? result?.data ?? []);
+                    items
+                        .filter((item) => item.type === "HIGHLIGHT")
+                        .forEach((item) => {
+                            allHighlights.push({
+                                text: item.text,
+                                bookTitle: info.bookTitle,
+                                userColor: info.userColor,
+                            });
+                        });
+                });
+                if (allHighlights.length === 0) return;
+
+                // 랜덤 선택
+                const random = allHighlights[Math.floor(Math.random() * allHighlights.length)];
+                setHighlightQuote(random);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        loadHighlight();
     }, []);
 
     return (

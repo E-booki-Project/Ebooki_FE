@@ -15,6 +15,11 @@ export const signup = async (formData) => {
     return response.data;
 };
 
+export const getUser = async () => {
+    const response = await axiosInstance.get("/auth/users");
+    return response.data;
+};
+
 export const logout = async () => {};
 
 export const findpassword = async () => {};

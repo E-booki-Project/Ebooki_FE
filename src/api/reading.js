@@ -1,11 +1,10 @@
 import axiosInstance from "./axios";
 
 export const getEpubData = async (teamId, bookId) => {
-    const response = await axiosInstance.get(
-        `/api/teams/${teamId}/book/${bookId}`,
-        { responseType: "arraybuffer" },
-    );
-    return response.data;
+    const response = await axiosInstance.get(`/api/teams/${teamId}/book/${bookId}`);
+    const presignedUrl = response.data?.bookData?.presignedUrl;
+    const s3Response = await fetch(presignedUrl);
+    return await s3Response.arrayBuffer();
 };
 
 export const getReadingEntry = async (teamId, bookId) => {

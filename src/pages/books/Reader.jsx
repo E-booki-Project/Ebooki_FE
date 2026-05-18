@@ -43,6 +43,9 @@ function Reader() {
         window.setTimeout(() => (justClickedHighlightRef.current = false), 80);
     };
 
+    // 드래그 중 selected 이벤트 중복 발생 방지 (selectionchange 기반)
+    const selectionTimerRef = useRef(null);
+
     const toSafeClassName = (cfi) =>
         "hl_" + String(cfi).replace(/[^a-zA-Z0-9_-]/g, "_");
 
@@ -154,6 +157,13 @@ function Reader() {
             };
 
             const onSelected = (cfiRange, contents) => {
+                window.clearTimeout(selectionTimerRef.current);
+                selectionTimerRef.current = window.setTimeout(() => {
+                    processSelection(cfiRange, contents);
+                }, 60);
+            };
+
+            const processSelection = (cfiRange, contents) => {
                 const highlights = highlightsRef.current;
                 const selectedText = (() => {
                     try {
@@ -303,6 +313,7 @@ function Reader() {
             window.addEventListener("resize", handleResize);
 
             cleanupActions.fn = () => {
+                window.clearTimeout(selectionTimerRef.current);
                 window.removeEventListener("resize", handleResize);
                 try {
                     rendition.off("rendered", onRendered);
