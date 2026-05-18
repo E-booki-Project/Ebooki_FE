@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as PE from "../../styles/mypage/ProfileEditStyle";
-import { useUserInfo } from "../../context/UserContext";
+import { useUserInfo } from "../../context/useUserInfo";
 import {
     getProfilePresignedUrl,
     uploadToS3,

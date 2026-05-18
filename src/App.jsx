@@ -19,6 +19,7 @@ import Pricing from "./pages/pricing/Pricing";
 import PaymentStatus from "./pages/pricing/PaymentStatus";
 
 import Home from "./pages/home/Home";
+import Landing from "./pages/home/Landing";
 
 import Mypage from "./pages/mypage/Mypage";
 import ProfileView from "./pages/mypage/ProfileView";
@@ -31,6 +32,7 @@ function App() {
         <div className="App">
             <Routes>
                 {/* 헤더 없는 페이지 */}
+                <Route path="/" element={<Landing />} />
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
@@ -53,7 +55,7 @@ function App() {
                         element={<PaymentStatus />}
                     />
 
-                    <Route path="/" element={<Home />} />
+                    <Route path="/home" element={<Home />} />
 
                     <Route path="/mypage" element={<Mypage />}>
                         <Route index element={<ProfileView />} />

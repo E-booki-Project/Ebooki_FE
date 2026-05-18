@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { typography } from "../typography";
 import { colors } from "../colors";
+import homeBg from "../../assets/images/home_bg.svg";
 
 export const LoggedIn = styled.div`
     display: flex;
@@ -10,26 +11,61 @@ export const LoggedIn = styled.div`
 `;
 
 export const Banner = styled.div`
-    background-color: ${colors.grayMedium};
+    background-image: url(${homeBg});
+    background-size: cover;
+    background-position: center;
     width: 778px;
     height: 310px;
     position: relative;
     margin-top: 48px;
     margin-bottom: 32px;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: self-start;
+    justify-content: center;
+    flex-direction: column;
+`;
+
+export const BannerTextGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 50px 40px 0;
+    max-width: 60%;
+`;
+
+export const BannerTitle = styled.h2`
+    margin: 0;
+    font-size: 22px;
+    line-height: 130%;
+    font-weight: 700;
+    color: ${colors.black};
+    white-space: nowrap;
+`;
+
+export const BannerDesc = styled.p`
+    margin: 0;
+    ${typography.bodySmall};
+    color: ${colors.charcoal};
+    line-height: 160%;
+    font-size: 12px;
 `;
 
 export const BannerButton = styled.button`
-    position: absolute;
-    width: 160px;
-    height: 40px;
+    padding: 13px 45px;
+    font-size: 16px;
     background-color: ${colors.coral};
     border: none;
     border-radius: 8px;
     color: ${colors.white};
     ${typography.bodyBaseSingle};
-    position: absolute;
-    bottom: 27px;
-    right: 27px;
+    cursor: pointer;
+    margin: 40px 40px 0;
+
+    &:hover {
+        opacity: 0.9;
+    }
 `;
 
 export const Content = styled.div`
@@ -37,16 +73,17 @@ export const Content = styled.div`
     flex-direction: column;
     width: 778px;
     gap: 32px;
+    padding-bottom: 48px;
 `;
 
-export const List = styled.div`
+export const BookSection = styled.div`
     display: flex;
     flex-direction: column;
 `;
 
-export const listTitle = styled.div`
+export const SectionTitle = styled.div`
     text-align: start;
-    ${typography.bodyBase};
+    ${typography.bodyStrong};
     margin-top: 0;
 `;
 
@@ -75,17 +112,23 @@ export const BookItem = styled.div`
     flex-direction: column;
     align-items: start;
     scroll-snap-align: start;
+    cursor: pointer;
 `;
 
 export const BookCover = styled.img`
     width: 146px;
     height: 215px;
     object-fit: cover;
+    border-radius: 4px;
 `;
 
-export const BookTitle = styled.div`
+export const BookItemTitle = styled.div`
     margin-top: 8px;
     ${typography.bodySmall};
+    width: 146px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `;
 
 export const RatingWrapper = styled.div`

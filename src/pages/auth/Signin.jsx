@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SigninStyle";
 import { login } from "../../api/auth";
 import { setAuthStorage } from "../../utils/authStorage";
-import { useUserInfo } from "../../context/UserContext";
+import { useUserInfo } from "../../context/useUserInfo";
 import {
     validateEmail,
     validateLoginPassword,
@@ -111,7 +111,7 @@ function Signin() {
                 });
                 await refreshUserInfo();
 
-                navigate("/");
+                navigate("/home");
             } else {
                 alert(result.message || "로그인에 실패했습니다.");
             }

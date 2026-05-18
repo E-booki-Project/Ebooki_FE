@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { typography } from "../typography";
 import { colors } from "../colors";
+import landingBg from "../../assets/images/landing_bg.svg";
 
 export const LoggedOut = styled.div`
     display: flex;
@@ -10,11 +11,14 @@ export const LoggedOut = styled.div`
 `;
 
 export const Section = styled.section`
-    background-color: ${colors.grayMedium};
+    background-image: url(${landingBg});
+    background-size: auto;
+    background-repeat: no-repeat;
+    background-position: center top;
     width: 778px;
     height: 100vh;
     display: flex;
-    align-items: end;
+    align-items: center;
     justify-content: center;
     position: relative;
 `;
@@ -28,5 +32,5 @@ export const StartButton = styled.button`
     color: ${colors.white};
     ${typography.bodyBaseSingle};
     position: absolute;
-    bottom: 48px;
+    top: 630px;
 `;

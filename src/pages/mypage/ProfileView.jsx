@@ -1,6 +1,6 @@
 import React from "react";
 import * as PV from "../../styles/mypage/ProfileViewStyle";
-import { useUserInfo } from "../../context/UserContext";
+import { useUserInfo } from "../../context/useUserInfo";
 
 import edit from "../../assets/images/edit.png";
 import defaultUser from "../../assets/images/user_pink.png";

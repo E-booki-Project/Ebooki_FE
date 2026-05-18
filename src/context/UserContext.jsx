@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { isLoggedIn, getUserInfo, clearAuthStorage } from "../utils/authStorage";
 import { getUser } from "../api/auth";
 
@@ -51,4 +51,4 @@ export function UserProvider({ children }) {
     );
 }
 
-export const useUserInfo = () => useContext(UserContext);
+export { UserContext };
