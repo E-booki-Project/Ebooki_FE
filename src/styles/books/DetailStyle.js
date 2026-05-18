@@ -129,7 +129,7 @@ export const ReadButton = styled.div`
 `;
 
 export const NoteSection = styled.section`
-    margin-top: 142px;
+    margin: 142px 0 50px;
 `;
 
 export const NoteHeader = styled.div`
@@ -175,17 +175,15 @@ export const NoteCard = styled.div`
     width: 516px;
     margin-left: 35px;
     position: relative;
-    overflow: hidden;
 `;
 
-export const NoteLeftBar = styled.div`
+export const NoteHighlight = styled.img`
+    display: block;
+    width: fit-content;
     position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    background-color: ${colors.blue};
-    opacity: 0.7;
+    left: -38px;
+    top: 24px;
+    z-index: 100;
 `;
 
 export const NoteContent = styled.div`

@@ -11,6 +11,7 @@ import userGreen from "../../assets/images/user_green.png";
 import more from "../../assets/images/more.png";
 
 import { getTeamDetail, updateTeam, reissueInviteLink } from "../../api/team";
+import { getUser } from "../../api/auth";
 
 const COLOR_IMAGE_MAP = {
     PINK: userPink,
@@ -26,14 +27,27 @@ function EditTeam() {
     const [bookData, setBookData] = useState(null);
     const [teamUserData, setTeamUserData] = useState([]);
     const [inviteToken, setInviteToken] = useState(null);
+    const [userMap, setUserMap] = useState({});
 
     useEffect(() => {
         const fetchTeamDetail = async () => {
             try {
-                const response = await getTeamDetail(teamId);
+                const [response, userResult] = await Promise.all([
+                    getTeamDetail(teamId),
+                    getUser(),
+                ]);
                 setTeamName(response.teamData.teamData.teamName);
                 setTeamUserData(response.teamData.teamUserData);
                 setBookData(response.bookData);
+
+                const users = userResult.data ?? userResult;
+                if (Array.isArray(users)) {
+                    const map = {};
+                    users.forEach((u) => {
+                        map[u.id] = { nickname: u.nickname ?? u.email, profileImage: u.profileImage ?? null };
+                    });
+                    setUserMap(map);
+                }
                 const inviteUrl = response.teamData.inviteUrl;
                 const token = inviteUrl ? new URLSearchParams(inviteUrl.split("?")[1]).get("token") : null;
                 if (token) {
@@ -119,13 +133,10 @@ function EditTeam() {
                         <I.ListWrapper key={user.id}>
                             <I.ListContent>
                                 <I.Profile
-                                    src={
-                                        COLOR_IMAGE_MAP[user.userColor] ||
-                                        user.image ||
-                                        userPink
-                                    }
+                                    src={userMap[user.userId]?.profileImage || COLOR_IMAGE_MAP[user.userColor] || userPink}
+                                    onError={(e) => { e.currentTarget.src = userPink; }}
                                 />
-                                <I.Username>{user.userId}</I.Username>
+                                <I.Username>{userMap[user.userId]?.nickname ?? user.userId}</I.Username>
                             </I.ListContent>
                             <I.More src={more} />
                         </I.ListWrapper>

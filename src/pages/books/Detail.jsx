@@ -9,6 +9,7 @@ import star from "../../assets/images/star.png";
 import starFull from "../../assets/images/star_full.png";
 import bookmark from "../../assets/images/bookmark.png";
 import link from "../../assets/images/link_black.png";
+import highlight from "../../assets/images/highlight.png";
 
 function Detail() {
     const { bookId } = useParams();
@@ -149,7 +150,7 @@ function Detail() {
                                 <D.NoteCard
                                     key={`${item.type}-${item.createdAt}`}
                                 >
-                                    {isHighlightItem && <D.NoteLeftBar />}
+                                    {isHighlightItem && <D.NoteHighlight src={highlight} alt="" />}
 
                                     <D.NoteContent>
                                         <D.NoteText>{item.text}</D.NoteText>
@@ -161,7 +162,7 @@ function Detail() {
                                                 <div />
                                             )}
                                             <D.NoteDate>
-                                                {new Date(item.createdAt).toLocaleString()}
+                                                {(() => { const d = new Date(item.createdAt); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}  ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; })()}
                                             </D.NoteDate>
                                         </D.NoteFooter>
                                     </D.NoteContent>
