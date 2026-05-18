@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as H from "../styles/components/HeaderStyle";
 import { useUserInfo } from "../context/UserContext";
+import { logout as logoutApi } from "../api/auth";
 import logo from "../assets/images/logo.png";
 import defaultProfile from "../assets/images/user_pink.png";
 
@@ -20,10 +21,14 @@ function AppHeader() {
         navigate("/mypage");
     };
 
-    const handleLogoutClick = () => {
+    const handleLogoutClick = async () => {
         setIsDropdownOpen(false);
-        logout();
-        navigate("/signin");
+        try {
+            await logoutApi();
+        } finally {
+            logout();
+            navigate("/signin");
+        }
     };
 
     useEffect(() => {

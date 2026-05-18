@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as S from "../../styles/auth/SignupStyle";
 import { signup } from "../../api/auth";
+import { getProfilePresignedUrl, uploadToS3 } from "../../api/mypage";
 import {
     validateEmail,
     validatePassword,
@@ -44,8 +45,6 @@ function Signup() {
     const handleProfileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        console.log("선택된 파일:", file);
 
         setSelectedFile(file);
 
@@ -119,9 +118,6 @@ function Signup() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("현재 form 상태:", form);
-        console.log("선택된 파일:", selectedFile);
-
         const validationErrors = validateSignupForm({
             email: form.email,
             password: form.password,
@@ -129,42 +125,27 @@ function Signup() {
         });
 
         setErrors(validationErrors);
-
-        const hasError = Object.values(validationErrors).some((value) => value);
-        if (hasError) return;
+        if (Object.values(validationErrors).some((v) => v)) return;
 
         setIsLoading(true);
 
         try {
-            const formData = new FormData();
-            formData.append("email", form.email);
-            formData.append("password", form.password);
+            let profileImage = null;
 
             if (selectedFile) {
-                formData.append("profileImage", selectedFile);
+                const { presignedUrl, fileKey } = await getProfilePresignedUrl(
+                    selectedFile.name,
+                    selectedFile.type,
+                );
+                await uploadToS3(presignedUrl, selectedFile);
+                profileImage = fileKey;
             }
 
-            for (const [key, value] of formData.entries()) {
-                console.log("formData:", key, value);
-            }
-
-            const result = await signup(formData);
-            console.log("회원가입 응답:", result);
-
-            if (result.statusCode === 200) {
-                alert(result.message || "회원가입이 완료되었습니다.");
-                navigate("/signin");
-            } else {
-                alert(result.message || "회원가입에 실패했습니다.");
-            }
+            await signup({ email: form.email, password: form.password, profileImage });
+            alert("회원가입이 완료되었습니다.");
+            navigate("/signin");
         } catch (error) {
-            console.log("회원가입 에러:", error);
-
-            const message =
-                error.response?.data?.message ||
-                "서버 오류가 발생했습니다. 다시 시도해주세요.";
-
-            alert(message);
+            alert(error.response?.data?.message || "서버 오류가 발생했습니다. 다시 시도해주세요.");
         } finally {
             setIsLoading(false);
         }

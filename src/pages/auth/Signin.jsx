@@ -19,7 +19,8 @@ function Signin() {
     const { refreshUserInfo } = useUserInfo();
 
     const handlePassword = () => {
-        navigate("/forgotpassword");
+        // navigate("/forgotpassword");
+        navigate("/signup");
     };
 
     const [form, setForm] = useState({
@@ -164,7 +165,7 @@ function Signin() {
                     </S.SigninButton>
 
                     <S.ForgotPassword onClick={handlePassword}>
-                        비밀번호를 잊어버렸어요 〉
+                        회원가입 〉
                     </S.ForgotPassword>
                 </S.Form>
             </S.EmailContainer>
