@@ -5,15 +5,11 @@ import { useUserInfo } from "../context/UserContext";
 import logo from "../assets/images/logo.png";
 import defaultProfile from "../assets/images/user_pink.png";
 
-function AppHeader({ isLoggedIn = true, onLogout }) {
+function AppHeader() {
     const navigate = useNavigate();
-    const { userInfo } = useUserInfo();
+    const { userInfo, logout } = useUserInfo();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const profileRef = useRef(null);
-
-    const handleAuthClick = () => {
-        navigate("/signin");
-    };
 
     const handleProfileClick = () => {
         setIsDropdownOpen((prev) => !prev);
@@ -26,12 +22,8 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
 
     const handleLogoutClick = () => {
         setIsDropdownOpen(false);
-
-        if (onLogout) {
-            onLogout();
-        } else {
-            navigate("/signin");
-        }
+        logout();
+        navigate("/signin");
     };
 
     useEffect(() => {
@@ -64,7 +56,7 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
                     <H.MenuLink to="/teams">팀</H.MenuLink>
                 </H.MenuNav>
 
-                {isLoggedIn ? (
+                {userInfo ? (
                     <H.ProfileWrapper ref={profileRef}>
                         <H.ProfileImage
                             src={userInfo?.profileImage || defaultProfile}
@@ -88,7 +80,7 @@ function AppHeader({ isLoggedIn = true, onLogout }) {
                     <H.LoginBtn
                         as="button"
                         type="button"
-                        onClick={handleAuthClick}
+                        onClick={() => navigate("/signin")}
                     >
                         로그인
                     </H.LoginBtn>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { isLoggedIn, getUserInfo } from "../utils/authStorage";
+import { isLoggedIn, getUserInfo, clearAuthStorage } from "../utils/authStorage";
 import { getUser } from "../api/auth";
 
 const UserContext = createContext(null);
@@ -39,8 +39,13 @@ export function UserProvider({ children }) {
 
     const refreshUserInfo = () => fetchUserInfo();
 
+    const logout = () => {
+        clearAuthStorage();
+        setUserInfoState(null);
+    };
+
     return (
-        <UserContext.Provider value={{ userInfo, setUserInfo, refreshUserInfo }}>
+        <UserContext.Provider value={{ userInfo, setUserInfo, refreshUserInfo, logout }}>
             {children}
         </UserContext.Provider>
     );

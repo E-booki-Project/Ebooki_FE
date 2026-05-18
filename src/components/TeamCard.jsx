@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import * as TC from "../styles/components/TeamCardStyle";
 import { getTeamDetail } from "../api/team";
 import more from "../assets/images/more.png";
-import starOn from "../assets/images/star.png";
-import starOff from "../assets/images/star_full.png";
+import starOn from "../assets/images/star_full.png";
+import starOff from "../assets/images/star.png";
 
 function TeamCard({ team }) {
     const navigate = useNavigate();
@@ -80,7 +80,7 @@ function TeamCard({ team }) {
                     {Array.from({ length: 5 }, (_, index) => (
                         <TC.StarIcon
                             key={index}
-                            src={index < team.rating ? starOn : starOff}
+                            src={team.rating != null && index < team.rating ? starOn : starOff}
                             alt="별점"
                         />
                     ))}

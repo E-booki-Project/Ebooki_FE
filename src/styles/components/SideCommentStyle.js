@@ -2,18 +2,34 @@ import styled from "styled-components";
 import { typography } from "../typography";
 import { colors } from "../colors";
 
-export const SideComment = styled.div`
+export const CardList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 33px;
     width: 240px;
-    max-height: 535px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 0 16px 0;
+    scrollbar-width: thin;
+    scrollbar-color: ${colors.grayLighter} transparent;
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: ${colors.grayLighter};
+        border-radius: 4px;
+    }
+`;
+
+export const SideComment = styled.div`
+    position: relative;
+    width: 240px;
     padding: 48px 24px 16px 24px;
     background-color: ${colors.white};
-    display: flex;
     border-radius: 4px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
-    display: block;
+    cursor: pointer;
+    box-sizing: border-box;
 `;
 
 export const Tape = styled.img`
@@ -48,6 +64,16 @@ export const Content = styled.div`
     }
 `;
 
+export const HighlightBlock = styled.div`
+    border-bottom: 1px solid ${colors.grayLighter};
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    &:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+`;
+
 export const BookQuotes = styled.div`
     ${typography.bodyBase};
     font-size: 13px;
@@ -56,9 +82,7 @@ export const BookQuotes = styled.div`
     .highlight {
         display: inline;
         padding: 0 2px;
-
-        box-shadow: inset 0 -1.1em 0 rgba(255, 216, 237, 0.3);
-
+        box-shadow: inset 0 -1.1em 0 ${({ $color }) => $color ?? "rgba(137, 209, 217, 0.3)"};
         box-decoration-break: clone;
         -webkit-box-decoration-break: clone;
     }
@@ -100,6 +124,42 @@ export const ProfileName = styled.div`
 export const MoreIcon = styled.img`
     width: 16px;
     height: 16px;
+    cursor: pointer;
+`;
+
+export const MoreWrapper = styled.div`
+    position: relative;
+`;
+
+export const MoreMenu = styled.div`
+    position: absolute;
+    right: 0;
+    top: 20px;
+    background-color: ${colors.white};
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    min-width: 72px;
+    overflow: hidden;
+`;
+
+export const MoreMenuDivider = styled.div`
+    height: 1px;
+    background-color: ${colors.grayLighter};
+    margin: 0 8px;
+`;
+
+export const MoreMenuItem = styled.button`
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    text-align: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    ${typography.bodySmall};
+    font-size: 12px;
+    color: ${({ $danger }) => ($danger ? "#e53e3e" : colors.black)};
 `;
 
 export const CommentText = styled.div`
