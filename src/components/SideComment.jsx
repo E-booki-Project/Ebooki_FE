@@ -44,6 +44,7 @@ const HIGHLIGHT_COLOR_MAP = {
 
 function HighlightCard({ highlight, teamId, userMap, onDelete }) {
     const currentUserId = getUserInfo()?.id;
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [comments, setComments] = useState(highlight.comments ?? []);
     const [replyText, setReplyText] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,13 +153,13 @@ function HighlightCard({ highlight, teamId, userMap, onDelete }) {
     const highlightColor = HIGHLIGHT_COLOR_MAP[highlight.color] ?? HIGHLIGHT_COLOR_MAP.BLUE;
 
     return (
-        <SC.SideComment onClick={() => onDelete(highlight)}>
+        <SC.SideComment onClick={() => setIsCollapsed((prev) => !prev)}>
             <SC.Tape src={tapeImage} />
             <SC.BookQuotes $color={highlightColor}>
                 <span className="highlight">{highlight.text}</span>
             </SC.BookQuotes>
 
-            <div style={{ marginTop: "20px" }} onClick={(e) => e.stopPropagation()}>
+            {!isCollapsed && <div style={{ marginTop: "20px" }} onClick={(e) => e.stopPropagation()}>
                     {comments.map((c) => {
                         const author = userMap?.[c.userId];
                         return (
@@ -274,7 +275,7 @@ function HighlightCard({ highlight, teamId, userMap, onDelete }) {
                             />
                         </SC.InputWrapper>
                     )}
-                </div>
+                </div>}
         </SC.SideComment>
     );
 }

@@ -280,6 +280,16 @@ function Reader() {
                         },
                     });
                 } catch { /* ignore */ }
+                // epub 자체 CSS의 hover 색상 변경 억제
+                try {
+                    const doc = contents.document;
+                    if (doc?.head && !doc.querySelector("#ebooki-style-override")) {
+                        const style = doc.createElement("style");
+                        style.id = "ebooki-style-override";
+                        style.textContent = "*:hover { color: inherit !important; }";
+                        doc.head.appendChild(style);
+                    }
+                } catch { /* ignore */ }
             };
 
             const onSelected = (cfiRange, contents) => {
@@ -424,6 +434,16 @@ function Reader() {
                     ? location.start.index / (totalSpine - 1)
                     : 0;
                 setReadPercent(percent);
+
+                // 페이지 이동마다 즉시 저장 — highlight 저장이 진행도를 덮어쓰는 문제 방지
+                const pct = totalSpine > 1
+                    ? Math.round((location.start.index / (totalSpine - 1)) * 100)
+                    : 0;
+                saveProgress(bookId, {
+                    spineIndex: location.start.index,
+                    cfi: location.start.cfi,
+                    percent: pct,
+                }).catch(() => {});
             };
 
             const onMouseDown = () => {
@@ -449,29 +469,31 @@ function Reader() {
             rendition.on("mousedown", onMouseDown);
             rendition.on("mouseup", onMouseUp);
 
+            // display() 전에 등록해야 Safari에서 렌더 패스에 바로 반영됨
+            const highlights = highlightsRef.current;
+            for (const hl of entry?.highlights ?? []) {
+                if (highlights.has(hl.cfi)) continue;
+                const className = toSafeClassName(hl.cfi);
+                try {
+                    rendition.annotations.highlight(
+                        hl.cfi,
+                        {},
+                        makeHighlightClickHandler(hl.cfi),
+                        className,
+                        {
+                            fill: HIGHLIGHT_FILL_MAP[hl.color] ?? HIGHLIGHT_FILL_MAP.BLUE,
+                            "fill-opacity": "0.55",
+                            "mix-blend-mode": "multiply",
+                            "pointer-events": "all",
+                        }
+                    );
+                    highlights.set(hl.cfi, { className, text: hl.text, id: hl.id, color: hl.color });
+                } catch { /* ignore */ }
+            }
+
             const startCfi = entry?.progress?.cfi;
             rendition.display(startCfi || undefined).then(() => {
                 rendition.spread("always");
-                const highlights = highlightsRef.current;
-                for (const hl of entry?.highlights ?? []) {
-                    if (highlights.has(hl.cfi)) continue;
-                    const className = toSafeClassName(hl.cfi);
-                    try {
-                        rendition.annotations.highlight(
-                            hl.cfi,
-                            {},
-                            makeHighlightClickHandler(hl.cfi),
-                            className,
-                            {
-                                fill: HIGHLIGHT_FILL_MAP[hl.color] ?? HIGHLIGHT_FILL_MAP.BLUE,
-                                "fill-opacity": "0.55",
-                                "mix-blend-mode": "multiply",
-                                "pointer-events": "all",
-                            }
-                        );
-                        highlights.set(hl.cfi, { className, text: hl.text, id: hl.id, color: hl.color });
-                    } catch { /* ignore */ }
-                }
             });
 
             const handleResize = () => {
