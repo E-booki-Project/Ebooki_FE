@@ -10,11 +10,13 @@ function PaymentStatus() {
     const location = useLocation();
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+    const [planExists, setPlanExists] = useState(false);
 
     useEffect(() => {
         const pgToken = searchParams.get("pg_token");
         const status = searchParams.get("status");
         const stateMessage = location.state?.message ?? null;
+        const statePlanExists = location.state?.planExists ?? false;
 
         if (pgToken) {
             const tid = sessionStorage.getItem("payment_tid");
@@ -27,6 +29,7 @@ function PaymentStatus() {
                 });
         } else if (stateMessage !== null) {
             setErrorMessage(stateMessage);
+            setPlanExists(statePlanExists);
             setPaymentStatus("fail");
         } else if (status === "cancel") {
             paymentCancel().finally(() => setPaymentStatus("fail"));
@@ -45,7 +48,7 @@ function PaymentStatus() {
     if (paymentStatus === "fail") {
         return (
             <P.Payment>
-                <PaymentFail message={errorMessage} />
+                <PaymentFail message={errorMessage} planExists={planExists} />
             </P.Payment>
         );
     }

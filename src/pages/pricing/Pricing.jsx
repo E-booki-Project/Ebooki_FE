@@ -17,8 +17,10 @@ function Pricing() {
             sessionStorage.setItem("payment_tid", data.tid);
             window.location.href = data.next_redirect_pc_url;
         } catch (error) {
+            const msg = error.response?.data?.message ?? null;
+            const planExists = error.response?.status === 409;
             navigate("/payment/success", {
-                state: { message: error.response?.data?.message ?? null },
+                state: { message: msg, planExists },
             });
         }
     };

@@ -12,6 +12,7 @@ import more from "../../assets/images/more.png";
 
 import { createTeam } from "../../api/team";
 import { getBook } from "../../api/book";
+import { getUser } from "../../api/auth";
 
 const COLOR_IMAGE_MAP = {
     PINK: userPink,
@@ -27,6 +28,7 @@ function Invite() {
     const [bookData, setBookData] = useState(null);
     const [teamUserData, setTeamUserData] = useState([]);
     const [inviteToken, setInviteToken] = useState("");
+    const [userMap, setUserMap] = useState({});
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -37,7 +39,21 @@ function Invite() {
                 alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
             }
         };
+        const fetchUsers = async () => {
+            try {
+                const result = await getUser();
+                const users = result.data ?? result;
+                if (Array.isArray(users)) {
+                    const map = {};
+                    users.forEach((u) => {
+                        map[u.id] = { nickname: u.nickname ?? u.email, profileImage: u.profileImage ?? null };
+                    });
+                    setUserMap(map);
+                }
+            } catch { /* ignore */ }
+        };
         fetchBook();
+        fetchUsers();
     }, [bookId]);
 
     const handleCreate = async () => {
@@ -122,12 +138,10 @@ function Invite() {
                         <I.ListWrapper key={user.id}>
                             <I.ListContent>
                                 <I.Profile
-                                    src={
-                                        COLOR_IMAGE_MAP[user.userColor] ||
-                                        userPink
-                                    }
+                                    src={userMap[user.userId]?.profileImage || COLOR_IMAGE_MAP[user.userColor] || userPink}
+                                    onError={(e) => { e.currentTarget.src = userPink; }}
                                 />
-                                <I.Username>{user.userId}</I.Username>
+                                <I.Username>{userMap[user.userId]?.nickname ?? user.userId}</I.Username>
                             </I.ListContent>
                             <I.More src={more} />
                         </I.ListWrapper>
