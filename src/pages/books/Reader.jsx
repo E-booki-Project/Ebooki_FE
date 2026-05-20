@@ -68,16 +68,11 @@ function Reader() {
         if (!loc) return false;
         if (loc.atEnd) return true;
         // Safari에서 atEnd가 정확히 설정 안 될 때를 대비해 spine 인덱스로 직접 판단
-<<<<<<< Updated upstream
-        const total = totalSpineRef.current;
-        return total > 0 && loc.end?.index != null && loc.end.index >= total - 1;
-=======
         // total <= 1 이면 spine이 아직 로드 안 됐거나 신뢰 불가 → false 반환해 오탐 방지
         const total = totalSpineRef.current;
         if (total <= 1) return false;
         const endIdx = loc.end?.index ?? loc.start?.index ?? -1;
         return endIdx >= total - 1;
->>>>>>> Stashed changes
     }, []);
 
     const handlePrev = useCallback(() => {
@@ -131,11 +126,7 @@ function Reader() {
                 getBook(bookId),
             ]);
 
-<<<<<<< Updated upstream
-            const serverCompleted = bookResult.status === "fulfilled" && bookResult.value?.myRating != null;
-=======
             const serverCompleted = bookResult.status === "fulfilled" && bookResult.value?.myRating > 0;
->>>>>>> Stashed changes
             if (locallyCompleted || serverCompleted) {
                 navigate(`/books/detail/${bookId}`, { state: { teamId, completedMessage: "이미 완독한 책입니다." } });
                 return;
