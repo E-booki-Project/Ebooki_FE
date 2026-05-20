@@ -39,36 +39,34 @@ function Invite() {
                 alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
             }
         };
-        const fetchUsers = async () => {
-            try {
-                const result = await getUser();
-                const users = result.data ?? result;
-                if (Array.isArray(users)) {
-                    const map = {};
-                    users.forEach((u) => {
-                        map[u.id] = { nickname: u.nickname ?? u.email, profileImage: u.profileImage ?? null };
-                    });
-                    setUserMap(map);
-                }
-            } catch { /* ignore */ }
-        };
         fetchBook();
-        fetchUsers();
     }, [bookId]);
 
     const handleCreate = async () => {
         if (!teamName.trim()) return;
         try {
-            const response = await createTeam({
-                teamName: teamName.trim(),
-                bookId: Number(bookId),
-            });
+            const [response, usersResult] = await Promise.allSettled([
+                createTeam({ teamName: teamName.trim(), bookId: Number(bookId) }),
+                getUser(),
+            ]);
 
-            setTeamUserData(response.teamData.teamUserData);
-            const url = response.teamData.inviteUrl;
+            if (response.status === "rejected") throw response.reason;
+
+            const data = response.value;
+            setTeamUserData(data.teamData.teamUserData);
+            const url = data.teamData.inviteUrl;
             const token = url ? new URLSearchParams(url.split("?")[1]).get("token") : null;
             setInviteToken(token);
-            setBookData(response.bookData);
+            setBookData(data.bookData);
+
+            if (usersResult.status === "fulfilled") {
+                const users = Array.isArray(usersResult.value) ? usersResult.value : (usersResult.value?.data ?? []);
+                const map = {};
+                users.forEach((u) => {
+                    map[u.id] = { nickname: u.nickname ?? u.email, profileImage: u.profileImage ?? null };
+                });
+                setUserMap(map);
+            }
         } catch (error) {
             const status = error.response?.data?.statusCode;
             const message = error.response?.data?.message;
