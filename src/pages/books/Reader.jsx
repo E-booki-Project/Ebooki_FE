@@ -63,6 +63,15 @@ function Reader() {
     const justCreatedRef = useRef(new Set());
     const justSelectedRef = useRef(false);
 
+    const isAtLastPage = useCallback(() => {
+        const loc = locationRef.current;
+        if (!loc) return false;
+        if (loc.atEnd) return true;
+        // Safari에서 atEnd가 정확히 설정 안 될 때를 대비해 spine 인덱스로 직접 판단
+        const total = totalSpineRef.current;
+        return total > 0 && loc.end?.index != null && loc.end.index >= total - 1;
+    }, []);
+
     const handlePrev = useCallback(() => {
         if (navLockRef.current || isRatingOpenRef.current) return;
         lockNav();
@@ -81,7 +90,7 @@ function Reader() {
 
     const handleNext = useCallback(() => {
         if (navLockRef.current || isRatingOpenRef.current) return;
-        if (locationRef.current?.atEnd) {
+        if (isAtLastPage()) {
             saveProgressNow(100);
             isRatingOpenRef.current = true;
             setIsRatingOpen(true);
@@ -89,7 +98,7 @@ function Reader() {
         }
         lockNav();
         renditionRef.current?.next();
-    }, [saveProgressNow]);
+    }, [isAtLastPage, saveProgressNow]);
 
     const toSafeClassName = (cfi) =>
         "hl_" + String(cfi).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -414,8 +423,7 @@ function Reader() {
                     return;
                 }
                 if (xInFrame >= rightZone) {
-                    const atEnd = !!locationRef.current?.atEnd;
-                    if (atEnd) {
+                    if (isAtLastPage()) {
                         const loc = locationRef.current;
                         if (loc) saveProgress(bookId, { spineIndex: loc.start.index, cfi: loc.start.cfi, percent: 100 }).catch(() => {});
                         isRatingOpenRef.current = true;
@@ -528,7 +536,7 @@ function Reader() {
             cancelled = true;
             cleanupActions.fn?.();
         };
-    }, [teamId, bookId, navigate]);
+    }, [teamId, bookId, navigate, isAtLastPage]);
 
     useEffect(() => {
         if (!teamId || !bookId) return;
