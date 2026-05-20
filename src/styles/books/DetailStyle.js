@@ -7,6 +7,24 @@ export const Detail = styled.div`
     flex-direction: row;
     align-items: start;
     min-height: 90vh;
+    position: relative;
+`;
+
+export const Toast = styled.div`
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: ${colors.grayDark};
+    color: ${colors.white};
+    ${typography.bodyBaseSingle}
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    z-index: 9999;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 `;
 
 export const LeftPanel = styled.div`

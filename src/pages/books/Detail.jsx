@@ -22,6 +22,7 @@ function Detail() {
     const [timeline, setTimeline] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
     const [isRatingOpen, setIsRatingOpen] = useState(false);
+    const [toast, setToast] = useState(state?.completedMessage ?? null);
 
     const fetchBook = async () => {
         try {
@@ -59,6 +60,9 @@ function Detail() {
 
     return (
         <D.Detail>
+            {toast && (
+                <D.Toast onClick={() => setToast(null)}>{toast}</D.Toast>
+            )}
             {isRatingOpen && (
                 <BookRatingModal
                     bookId={bookId}

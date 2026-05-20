@@ -203,14 +203,16 @@ export const ReactionCount = styled.div`
 export const InputWrapper = styled.div`
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     background-color: ${colors.grayLighter};
     border-radius: 8px;
-    height: 36px;
-    padding: 12px 16px;
+    min-height: 36px;
+    padding: 8px 16px;
+    justify-content: space-between;
 `;
 
-export const Input = styled.input`
+export const Input = styled.textarea`
+    flex: 1;
     border: none;
     background-color: transparent;
     color: ${colors.grayDark};
@@ -218,6 +220,15 @@ export const Input = styled.input`
     font-size: 12px;
     outline: none;
     box-shadow: none;
+    resize: none;
+    overflow-y: auto;
+    max-height: 90px;
+    line-height: 1.5;
+    padding: 2px 0;
+
+    &::placeholder {
+        color: ${colors.grayMedium};
+    }
 
     &:focus {
         outline: none;
@@ -233,5 +244,5 @@ export const Input = styled.input`
 export const EnterIcon = styled.img`
     width: 20px;
     height: 20px;
-    margin-left: 4px;
+    /* margin-left: 4px; */
 `;
