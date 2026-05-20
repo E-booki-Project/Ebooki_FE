@@ -42,7 +42,7 @@ const HIGHLIGHT_COLOR_MAP = {
     YELLOW: "rgba(242, 207, 102, 0.30)",
 };
 
-function HighlightCard({ highlight, teamId, userMap, onDelete }) {
+function HighlightCard({ highlight, teamId, userMap }) {
     const currentUserId = getUserInfo()?.id;
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [comments, setComments] = useState(highlight.comments ?? []);
@@ -139,9 +139,15 @@ function HighlightCard({ highlight, teamId, userMap, onDelete }) {
         } catch { /* optimistic stays */ }
     };
 
+    const autoResize = (el) => {
+        if (!el) return;
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+    };
+
     const onKeyDown = (e) => {
         if (isComposingRef.current) return;
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
             submitReply();
@@ -207,10 +213,12 @@ function HighlightCard({ highlight, teamId, userMap, onDelete }) {
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <SC.Input
+                                            rows={1}
                                             value={editText}
                                             onChange={(e) => setEditText(e.target.value)}
+                                            onInput={(e) => autoResize(e.target)}
                                             onKeyDown={(e) => {
-                                                if (e.key === "Enter") { e.preventDefault(); handleEditSubmit(c.id); }
+                                                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleEditSubmit(c.id); }
                                                 if (e.key === "Escape") { setEditingId(null); }
                                             }}
                                             autoFocus
@@ -257,10 +265,12 @@ function HighlightCard({ highlight, teamId, userMap, onDelete }) {
                     {!highlight.isLocal && (
                         <SC.InputWrapper style={{ marginTop: comments.length > 0 ? "10px" : "0" }}>
                             <SC.Input
+                                rows={1}
                                 ref={inputRef}
                                 placeholder="답글 추가"
                                 value={replyText}
                                 onChange={(e) => setReplyText(e.target.value)}
+                                onInput={(e) => autoResize(e.target)}
                                 onKeyDown={onKeyDown}
                                 onCompositionStart={() => { isComposingRef.current = true; }}
                                 onCompositionEnd={(e) => {

@@ -7,6 +7,7 @@ import BookRatingModal from "../../components/BookRatingModal";
 import { connectSocket, disconnectSocket, sendHighlight } from "../../api/socket";
 import { getEpubData, getReadingEntry, saveProgress, saveHighlight, getHighlights, getHighlightComments, deleteHighlight } from "../../api/reading";
 import { getTeamDetail } from "../../api/team";
+import { getBook } from "../../api/book";
 import { getUserInfo } from "../../utils/authStorage";
 
 const HIGHLIGHT_FILL_MAP = {
@@ -103,18 +104,21 @@ function Reader() {
             // 완독+평점 완료한 책은 즉시 차단 (epub 로딩 없이)
             const userId = getUserInfo()?.id ?? "guest";
             const completed = JSON.parse(localStorage.getItem(`ebookiCompleted_${userId}`) || "{}");
-            if (completed[String(bookId)]) {
-                alert("이미 완독한 책입니다.");
-                navigate(`/books/detail/${bookId}`, { state: { teamId } });
-                return;
-            }
+            const locallyCompleted = !!completed[String(bookId)];
 
             let epubData;
             let entry = null;
-            const [entryResult, detailResult] = await Promise.allSettled([
+            const [entryResult, detailResult, bookResult] = await Promise.allSettled([
                 getReadingEntry(teamId, bookId),
                 getTeamDetail(teamId),
+                getBook(bookId),
             ]);
+
+            const serverCompleted = bookResult.status === "fulfilled" && bookResult.value?.myRating != null;
+            if (locallyCompleted || serverCompleted) {
+                navigate(`/books/detail/${bookId}`, { state: { teamId, completedMessage: "이미 완독한 책입니다." } });
+                return;
+            }
 
             if (entryResult.status === "fulfilled") {
                 entry = entryResult.value;
