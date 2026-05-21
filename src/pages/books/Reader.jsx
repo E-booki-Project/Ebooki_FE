@@ -17,6 +17,8 @@ const HIGHLIGHT_FILL_MAP = {
     YELLOW: "rgba(242, 207, 102, 0.55)",
 };
 
+const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+
 function Reader() {
     const { teamId, bookId } = useParams();
     const navigate = useNavigate();
@@ -329,15 +331,17 @@ function Reader() {
             const onSelected = (cfiRange, contents) => {
                 pendingSelectionRef.current = { cfiRange, contents };
                 selectionReadyRef.current = true;
-                if (mouseUpFiredRef.current) {
+
+                if (!isTouchDevice && mouseUpFiredRef.current) {
+                    // 데스크탑: mouseup 이미 발생 → 즉시 처리
                     const p = pendingSelectionRef.current;
                     selectionReadyRef.current = false;
                     mouseUpFiredRef.current = false;
                     pendingSelectionRef.current = null;
                     if (p) processSelection(p.cfiRange, p.contents);
                 } else {
-                    // 터치 기기(iPad)에서는 mouseup이 발생하지 않아 선택이 처리되지 않으므로
-                    // 짧은 지연 후 mouseup 없이도 선택을 처리
+                    // 터치 기기: 1500ms 디바운스 (선택 조정 중 타이머 계속 리셋)
+                    // 데스크탑 fallback: mouseup 없을 때 100ms 후 처리
                     window.clearTimeout(selectionTimerRef.current);
                     selectionTimerRef.current = window.setTimeout(() => {
                         if (!selectionReadyRef.current) return;
@@ -345,7 +349,7 @@ function Reader() {
                         selectionReadyRef.current = false;
                         pendingSelectionRef.current = null;
                         if (p) processSelection(p.cfiRange, p.contents);
-                    }, 100);
+                    }, isTouchDevice ? 1500 : 100);
                 }
             };
 
@@ -437,7 +441,17 @@ function Reader() {
                 if (navLockRef.current) return;
                 if (justClickedHighlightRef.current) return;
                 if (hasSelectionInThisContents(contents)) {
-                    clearSelectionInThisContents(contents);
+                    if (isTouchDevice && selectionReadyRef.current) {
+                        // 터치 기기: 다른 곳 탭 시 pending selection을 즉시 POST
+                        window.clearTimeout(selectionTimerRef.current);
+                        const p = pendingSelectionRef.current;
+                        selectionReadyRef.current = false;
+                        pendingSelectionRef.current = null;
+                        clearSelectionInThisContents(contents);
+                        if (p) processSelection(p.cfiRange, p.contents);
+                    } else {
+                        clearSelectionInThisContents(contents);
+                    }
                     return;
                 }
                 const frame = bookFrameRef.current;
