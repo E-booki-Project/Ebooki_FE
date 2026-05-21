@@ -204,11 +204,7 @@ function Detail() {
                                         <D.NoteText>{item.text}</D.NoteText>
 
                                         <D.NoteFooter>
-                                            {isHighlightItem ? (
-                                                <D.NotePage>{item.page ?? ""}</D.NotePage>
-                                            ) : (
-                                                <div />
-                                            )}
+                                            <div />
                                             <D.NoteDate>
                                                 {(() => { const d = new Date(item.createdAt); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}  ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; })()}
                                             </D.NoteDate>
