@@ -11,6 +11,7 @@ export const LoggedOut = styled.div`
 `;
 
 export const Section = styled.section`
+    background-color: #f5f0e8;
     background-image: url(${landingBg});
     background-size: auto;
     background-repeat: no-repeat;

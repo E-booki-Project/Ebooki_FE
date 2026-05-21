@@ -1,6 +1,24 @@
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
 
+import homeBg from "./assets/images/home_bg.svg";
+import landingBg from "./assets/images/landing_bg.svg";
+
+// JS 번들 평가 시점에 대형 배경 이미지를 즉시 preload 등록
+// CSS background-image는 브라우저 preload scanner에 감지되지 않으므로
+// link[rel=preload]를 직접 주입해 첫 렌더 전부터 다운로드를 시작시킴
+if (typeof window !== "undefined") {
+    [homeBg, landingBg].forEach((href) => {
+        if (document.querySelector(`link[rel="preload"][href="${href}"]`)) return;
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.type = "image/svg+xml";
+        link.href = href;
+        document.head.appendChild(link);
+    });
+}
+
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Signin from "./pages/auth/Signin";
 import Signup from "./pages/auth/Signup";

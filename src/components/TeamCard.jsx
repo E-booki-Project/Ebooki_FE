@@ -47,7 +47,12 @@ function TeamCard({ team }) {
     return (
         <TC.TeamCard>
             <TC.ImageWrapper>
-                <TC.BookImage src={team.bookImage} alt={team.bookTitle} />
+                <TC.BookImage
+                    src={team.bookImage}
+                    alt={team.bookTitle}
+                    onClick={() => navigate(`/reader/${team.id}/${team.bookId}`)}
+                    style={{ cursor: "pointer" }}
+                />
                 <TC.MenuWrapper ref={menuRef}>
                     <TC.MoreIcon
                         src={more}

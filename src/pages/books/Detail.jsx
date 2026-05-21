@@ -39,7 +39,7 @@ function Detail() {
         const fetchTimeline = async () => {
             try {
                 const data = await getBookTimeline(bookId);
-                setTimeline(data);
+                setTimeline(Array.isArray(data) ? data : (data?.timeline ?? data?.data ?? []));
             } catch (error) {
                 console.error(error);
             }
@@ -72,9 +72,9 @@ function Detail() {
                     bookId={bookId}
                     initialRating={bookData?.myRating ?? bookData?.rating}
                     onClose={() => setIsRatingOpen(false)}
-                    onRated={() => {
+                    onRated={(newRating) => {
                         setIsRatingOpen(false);
-                        fetchBook();
+                        setBookData(prev => prev ? { ...prev, myRating: newRating } : prev);
                     }}
                 />
             )}
@@ -122,7 +122,7 @@ function Detail() {
                                 </div>
                             );
                         })}
-                        <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.myRating ?? bookData?.rating ?? ""}</D.RatingScore>
+                        <D.RatingScore style={{ cursor: "pointer" }}>{(() => { const r = bookData?.myRating ?? bookData?.rating; return r != null ? Number(r).toFixed(1) : ""; })()}</D.RatingScore>
                     </D.RatingWrapper>
 
                     <D.ReadButton onClick={() => teamId && navigate(`/reader/${teamId}/${bookId}`)}>같이 읽으러 가기</D.ReadButton>

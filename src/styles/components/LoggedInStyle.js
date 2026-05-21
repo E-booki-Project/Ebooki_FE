@@ -11,6 +11,7 @@ export const LoggedIn = styled.div`
 `;
 
 export const Banner = styled.div`
+    background-color: #e8f4f6;
     background-image: url(${homeBg});
     background-size: cover;
     background-position: center;
