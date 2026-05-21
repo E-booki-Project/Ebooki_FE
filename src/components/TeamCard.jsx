@@ -37,17 +37,34 @@ function TeamCard({ team }) {
         setIsMenuOpen(false);
         try {
             const detail = await getTeamDetail(team.id);
-            const bookId = detail.bookData?.bookId ?? detail.bookData?.id;
+            const bookId = detail?.teamData?.teamData?.bookId ?? detail?.bookData?.bookId ?? detail?.bookData?.id;
             if (!bookId) { alert("도서 정보를 찾을 수 없습니다."); return; }
             navigate(`/books/detail/${bookId}`, { state: { teamId: team.id } });
         } catch {
             alert("도서 정보를 불러오는데 실패했습니다.");
         }
     };
+
+    const handleBookClick = async () => {
+        try {
+            const detail = await getTeamDetail(team.id);
+            const bookId = detail?.teamData?.teamData?.bookId ?? detail?.bookData?.bookId ?? detail?.bookData?.id;
+            if (!bookId) { alert("도서 정보를 찾을 수 없습니다."); return; }
+            navigate(`/reader/${team.id}/${bookId}`);
+        } catch {
+            alert("도서 정보를 불러오는데 실패했습니다.");
+        }
+    };
+
     return (
         <TC.TeamCard>
             <TC.ImageWrapper>
-                <TC.BookImage src={team.bookImage} alt={team.bookTitle} />
+                <TC.BookImage
+                    src={team.bookImage}
+                    alt={team.bookTitle}
+                    onClick={handleBookClick}
+                    style={{ cursor: "pointer" }}
+                />
                 <TC.MenuWrapper ref={menuRef}>
                     <TC.MoreIcon
                         src={more}

@@ -61,7 +61,7 @@ function List() {
                         <L.BookTitle>{book.title}</L.BookTitle>
                         <L.RatingWrapper>
                             <L.RatingIcon src={star} alt="star" />
-                            <L.BookRating>{book.rating}</L.BookRating>
+                            <L.BookRating>{book.rating != null ? Number(book.rating).toFixed(1) : ""}</L.BookRating>
                         </L.RatingWrapper>
                     </L.BookItem>
                 ))}

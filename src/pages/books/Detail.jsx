@@ -1,7 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
-import { getBook, getBookTimeline, toggleLike } from "../../api/book";
+import { getBook, toggleLike } from "../../api/book";
+import { getHighlights, getHighlightComments } from "../../api/reading";
+import { getUserInfo } from "../../utils/authStorage";
 
 import BookRatingModal from "../../components/BookRatingModal";
 import cover from "../../assets/images/book.png";
@@ -34,25 +36,67 @@ function Detail() {
         }
     };
 
+    const currentUserId = getUserInfo()?.id;
+
     useEffect(() => {
-        const fetchTimeline = async () => {
+        const fetchNotes = async () => {
+            if (!teamId) { setTimeline([]); return; }
             try {
-                const data = await getBookTimeline(bookId);
-                setTimeline(data);
+                const data = await getHighlights(Number(bookId), Number(teamId));
+                const allHighlights = data?.highlights ?? [];
+
+                // 내 하이라이트만 추출
+                const myHighlights = allHighlights.filter(
+                    (h) => Number(h.userId) === Number(currentUserId)
+                );
+
+                // 내 하이라이트 각각의 댓글 조회
+                const commentResults = await Promise.all(
+                    myHighlights.map((h) => getHighlightComments(h.id).catch(() => []))
+                );
+
+                // 내가 쓴 댓글만 수집
+                const myCommentItems = [];
+                commentResults.forEach((result) => {
+                    const list = Array.isArray(result) ? result : (result?.data ?? []);
+                    list
+                        .filter((c) => Number(c.userId) === Number(currentUserId))
+                        .forEach((c) => {
+                            myCommentItems.push({
+                                type: "COMMENT",
+                                text: c.text,
+                                createdAt: c.createdAt,
+                                userId: Number(c.userId),
+                                page: null,
+                            });
+                        });
+                });
+
+                setTimeline([
+                    ...myHighlights.map((h) => ({
+                        type: "HIGHLIGHT",
+                        text: h.text,
+                        createdAt: h.createdAt,
+                        userId: Number(h.userId),
+                        page: h.spineIndex,
+                    })),
+                    ...myCommentItems,
+                ]);
             } catch (error) {
                 console.error(error);
             }
         };
         fetchBook();
-        fetchTimeline();
+        fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [bookId, newRatingFromNav]);
+    }, [bookId, teamId, newRatingFromNav]);
 
     const visibleItems = useMemo(() => {
-        if (activeTab === "highlight") return timeline.filter((item) => item.type === "HIGHLIGHT");
-        if (activeTab === "comment") return timeline.filter((item) => item.type === "COMMENT");
-        return [...timeline].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    }, [timeline, activeTab]);
+        const myItems = timeline.filter((item) => Number(item.userId) === Number(currentUserId));
+        if (activeTab === "highlight") return myItems.filter((item) => item.type === "HIGHLIGHT");
+        if (activeTab === "comment") return myItems.filter((item) => item.type === "COMMENT");
+        return [...myItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }, [timeline, activeTab, currentUserId]);
 
     const handleTabClick = (tab) => {
         setActiveTab((prev) => (prev === tab ? null : tab));
@@ -68,9 +112,9 @@ function Detail() {
                     bookId={bookId}
                     initialRating={bookData?.myRating ?? bookData?.rating}
                     onClose={() => setIsRatingOpen(false)}
-                    onRated={() => {
+                    onRated={(newRating) => {
                         setIsRatingOpen(false);
-                        fetchBook();
+                        setBookData(prev => prev ? { ...prev, myRating: newRating } : prev);
                     }}
                 />
             )}
@@ -118,7 +162,7 @@ function Detail() {
                                 </div>
                             );
                         })}
-                        <D.RatingScore style={{ cursor: "pointer" }}>{bookData?.myRating ?? bookData?.rating ?? ""}</D.RatingScore>
+                        <D.RatingScore style={{ cursor: "pointer" }}>{(() => { const r = bookData?.myRating ?? bookData?.rating; return r != null ? Number(r).toFixed(1) : ""; })()}</D.RatingScore>
                     </D.RatingWrapper>
 
                     <D.ReadButton onClick={() => teamId && navigate(`/reader/${teamId}/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
@@ -160,11 +204,7 @@ function Detail() {
                                         <D.NoteText>{item.text}</D.NoteText>
 
                                         <D.NoteFooter>
-                                            {isHighlightItem ? (
-                                                <D.NotePage>{item.page ?? ""}</D.NotePage>
-                                            ) : (
-                                                <div />
-                                            )}
+                                            <div />
                                             <D.NoteDate>
                                                 {(() => { const d = new Date(item.createdAt); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}  ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; })()}
                                             </D.NoteDate>

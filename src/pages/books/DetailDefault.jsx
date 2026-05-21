@@ -69,7 +69,7 @@ function DetailDefault() {
                                 </div>
                             );
                         })}
-                        <D.RatingScore>{bookData?.rating}</D.RatingScore>
+                        <D.RatingScore>{bookData?.rating != null ? Number(bookData.rating).toFixed(1) : ""}</D.RatingScore>
                     </D.RatingWrapper>
 
                     <D.ReadButton onClick={() => navigate(`/invite/${bookId}`)}>같이 읽으러 가기</D.ReadButton>

@@ -57,6 +57,7 @@ function Reader() {
 
     // 드래그 중 selected 이벤트 중복 발생 방지
     const selectionTimerRef = useRef(null);
+    const reloadPageHighlightsRef = useRef(null);
     const pendingSelectionRef = useRef(null);
     const selectionReadyRef = useRef(false);
     const mouseUpFiredRef = useRef(false);
@@ -232,6 +233,12 @@ function Reader() {
                 }
             };
 
+            reloadPageHighlightsRef.current = () => {
+                const loc = locationRef.current;
+                if (!loc) return;
+                loadPageHighlights(loc.start.cfi, loc.end?.cfi ?? loc.start.cfi);
+            };
+
             const hasSelectionInThisContents = (contents) => {
                 try {
                     const sel = contents?.window?.getSelection?.();
@@ -300,6 +307,11 @@ function Reader() {
                             "pointer-events": "all",
                             cursor: "pointer",
                         },
+                        // 아이패드에서 연속 드래그 선택 허용
+                        "*": {
+                            "-webkit-user-select": "text",
+                            "user-select": "text",
+                        },
                     });
                 } catch { /* ignore */ }
                 // epub 자체 CSS의 hover 색상 변경 억제
@@ -323,6 +335,17 @@ function Reader() {
                     mouseUpFiredRef.current = false;
                     pendingSelectionRef.current = null;
                     if (p) processSelection(p.cfiRange, p.contents);
+                } else {
+                    // 터치 기기(iPad)에서는 mouseup이 발생하지 않아 선택이 처리되지 않으므로
+                    // 짧은 지연 후 mouseup 없이도 선택을 처리
+                    window.clearTimeout(selectionTimerRef.current);
+                    selectionTimerRef.current = window.setTimeout(() => {
+                        if (!selectionReadyRef.current) return;
+                        const p = pendingSelectionRef.current;
+                        selectionReadyRef.current = false;
+                        pendingSelectionRef.current = null;
+                        if (p) processSelection(p.cfiRange, p.contents);
+                    }, 100);
                 }
             };
 
@@ -513,9 +536,7 @@ function Reader() {
             }
 
             const startCfi = entry?.progress?.cfi;
-            rendition.display(startCfi || undefined).then(() => {
-                rendition.spread("always");
-            });
+            rendition.display(startCfi || undefined);
 
             const handleResize = () => {
                 rendition.resize("100%", "100%");
@@ -524,6 +545,7 @@ function Reader() {
             window.addEventListener("resize", handleResize);
 
             cleanupActions.fn = () => {
+                reloadPageHighlightsRef.current = null;
                 window.clearTimeout(selectionTimerRef.current);
                 window.removeEventListener("resize", handleResize);
                 try {
@@ -572,6 +594,7 @@ function Reader() {
                     }
                 );
                 highlights.set(cfiRange, { className, text });
+                reloadPageHighlightsRef.current?.();
             },
         });
 

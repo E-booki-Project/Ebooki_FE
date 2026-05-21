@@ -6,7 +6,7 @@ import BookPlanProgress from "../../components/BookPlanProgress";
 import ReadingAnalysis from "../../components/ReadingAnalysis";
 import { getMypage } from "../../api/mypage";
 import { getTeamList, getTeamDetail } from "../../api/team";
-import { getMyBookItems } from "../../api/book";
+import { getHighlights } from "../../api/reading";
 import { getUserInfo } from "../../utils/authStorage";
 
 function Mypage() {
@@ -40,6 +40,7 @@ function Mypage() {
                         );
                         return {
                             bookId,
+                            teamId: team.teamId,
                             userColor: myTeamUser?.userColor ?? "BLUE",
                             bookTitle: team.bookTitle,
                         };
@@ -47,16 +48,16 @@ function Mypage() {
                     .filter((t) => t.bookId);
                 // 모든 북 하이라이트 병렬 조회
                 const highlightResults = await Promise.all(
-                    teamInfos.map((info) => getMyBookItems(info.bookId).catch(() => null))
+                    teamInfos.map((info) => getHighlights(info.bookId, info.teamId).catch(() => null))
                 );
-                // 전체 하이라이트 수집
+                // 전체 하이라이트 수집 (내 userId와 일치하는 것만)
                 const allHighlights = [];
                 teamInfos.forEach((info, i) => {
                     const result = highlightResults[i];
                     if (!result) return;
-                    const items = Array.isArray(result) ? result : (result?.timeline ?? result?.data ?? []);
+                    const items = result?.highlights ?? [];
                     items
-                        .filter((item) => item.type === "HIGHLIGHT")
+                        .filter((item) => Number(item.userId) === Number(myUserId))
                         .forEach((item) => {
                             allHighlights.push({
                                 text: item.text,
