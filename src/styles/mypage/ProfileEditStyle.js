@@ -18,8 +18,9 @@ export const Header = styled.div`
 `;
 
 export const ProfileWrapper = styled.button`
-    /* width: 170px; */
-    height: 170px;
+    width: 95px;
+    height: 95px;
+    flex-shrink: 0;
     border-radius: 50%;
     border: none;
     padding: 0;
@@ -27,6 +28,9 @@ export const ProfileWrapper = styled.button`
     position: relative;
     overflow: hidden;
     margin-bottom: 28px;
+    transform: translateZ(0);
+    -webkit-mask-image: -webkit-radial-gradient(circle, white 100%, black 100%);
+    mask-image: radial-gradient(circle, white 100%, black 100%);
 `;
 
 export const ProfileIcon = styled.img`
