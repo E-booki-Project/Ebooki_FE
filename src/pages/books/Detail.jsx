@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
 import { getBook, getBookTimeline, toggleLike } from "../../api/book";
+import { getUserInfo } from "../../utils/authStorage";
 
 import BookRatingModal from "../../components/BookRatingModal";
 import cover from "../../assets/images/book.png";
@@ -48,11 +49,14 @@ function Detail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookId, newRatingFromNav]);
 
+    const currentUserId = getUserInfo()?.id;
+
     const visibleItems = useMemo(() => {
-        if (activeTab === "highlight") return timeline.filter((item) => item.type === "HIGHLIGHT");
-        if (activeTab === "comment") return timeline.filter((item) => item.type === "COMMENT");
-        return [...timeline].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    }, [timeline, activeTab]);
+        const myItems = timeline.filter((item) => Number(item.userId) === Number(currentUserId));
+        if (activeTab === "highlight") return myItems.filter((item) => item.type === "HIGHLIGHT");
+        if (activeTab === "comment") return myItems.filter((item) => item.type === "COMMENT");
+        return [...myItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }, [timeline, activeTab, currentUserId]);
 
     const handleTabClick = (tab) => {
         setActiveTab((prev) => (prev === tab ? null : tab));

@@ -56,7 +56,7 @@ function Mypage() {
                     if (!result) return;
                     const items = Array.isArray(result) ? result : (result?.timeline ?? result?.data ?? []);
                     items
-                        .filter((item) => item.type === "HIGHLIGHT")
+                        .filter((item) => item.type === "HIGHLIGHT" && Number(item.userId) === Number(myUserId))
                         .forEach((item) => {
                             allHighlights.push({
                                 text: item.text,
