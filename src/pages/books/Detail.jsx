@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
-import { getBook, getBookTimeline, toggleLike } from "../../api/book";
+import { getBook, toggleLike } from "../../api/book";
+import { getHighlights, getHighlightComments } from "../../api/reading";
 import { getUserInfo } from "../../utils/authStorage";
 
 import BookRatingModal from "../../components/BookRatingModal";
@@ -35,21 +36,60 @@ function Detail() {
         }
     };
 
+    const currentUserId = getUserInfo()?.id;
+
     useEffect(() => {
-        const fetchTimeline = async () => {
+        const fetchNotes = async () => {
+            if (!teamId) { setTimeline([]); return; }
             try {
-                const data = await getBookTimeline(bookId);
-                setTimeline(Array.isArray(data) ? data : (data?.timeline ?? data?.data ?? []));
+                const data = await getHighlights(Number(bookId), Number(teamId));
+                const allHighlights = data?.highlights ?? [];
+
+                // 내 하이라이트만 추출
+                const myHighlights = allHighlights.filter(
+                    (h) => Number(h.userId) === Number(currentUserId)
+                );
+
+                // 내 하이라이트 각각의 댓글 조회
+                const commentResults = await Promise.all(
+                    myHighlights.map((h) => getHighlightComments(h.id).catch(() => []))
+                );
+
+                // 내가 쓴 댓글만 수집
+                const myCommentItems = [];
+                commentResults.forEach((result) => {
+                    const list = Array.isArray(result) ? result : (result?.data ?? []);
+                    list
+                        .filter((c) => Number(c.userId) === Number(currentUserId))
+                        .forEach((c) => {
+                            myCommentItems.push({
+                                type: "COMMENT",
+                                text: c.text,
+                                createdAt: c.createdAt,
+                                userId: Number(c.userId),
+                                page: null,
+                            });
+                        });
+                });
+
+                setTimeline([
+                    ...myHighlights.map((h) => ({
+                        type: "HIGHLIGHT",
+                        text: h.text,
+                        createdAt: h.createdAt,
+                        userId: Number(h.userId),
+                        page: h.spineIndex,
+                    })),
+                    ...myCommentItems,
+                ]);
             } catch (error) {
                 console.error(error);
             }
         };
         fetchBook();
-        fetchTimeline();
+        fetchNotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [bookId, newRatingFromNav]);
-
-    const currentUserId = getUserInfo()?.id;
+    }, [bookId, teamId, newRatingFromNav]);
 
     const visibleItems = useMemo(() => {
         const myItems = timeline.filter((item) => Number(item.userId) === Number(currentUserId));

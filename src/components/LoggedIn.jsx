@@ -55,7 +55,7 @@ function LoggedIn() {
                                 <L.BookItemTitle>{book.title}</L.BookItemTitle>
                                 <L.RatingWrapper>
                                     <L.RatingIcon src={star} />
-                                    <L.BookRating>{book.rating}</L.BookRating>
+                                    <L.BookRating>{book.rating != null ? Number(book.rating).toFixed(1) : ""}</L.BookRating>
                                 </L.RatingWrapper>
                             </L.BookItem>
                         ))}
@@ -71,7 +71,7 @@ function LoggedIn() {
                                 <L.BookItemTitle>{book.title}</L.BookItemTitle>
                                 <L.RatingWrapper>
                                     <L.RatingIcon src={star} />
-                                    <L.BookRating>{book.rating}</L.BookRating>
+                                    <L.BookRating>{book.rating != null ? Number(book.rating).toFixed(1) : ""}</L.BookRating>
                                 </L.RatingWrapper>
                             </L.BookItem>
                         ))}
