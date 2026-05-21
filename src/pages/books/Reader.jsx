@@ -185,11 +185,12 @@ function Reader() {
             const makeHighlightClickHandler = (cfi) => (e) => {
                 if (justCreatedRef.current.has(cfi)) return;
                 if (justSelectedRef.current) return;
+                const hlData = highlightsRef.current.get(cfi);
+                if (hlData?.userId != null && Number(hlData.userId) !== Number(userId)) return;
                 markHighlightClick();
                 e?.preventDefault?.();
                 e?.stopPropagation?.();
                 if (!window.confirm("하이라이트를 삭제할까요?")) return;
-                const hlData = highlightsRef.current.get(cfi);
                 rendition.annotations.remove(cfi, "highlight");
                 highlightsRef.current.delete(cfi);
                 removeHighlightFromState(cfi);
@@ -214,7 +215,7 @@ function Reader() {
                     pageHls.forEach((h) => {
                         const existing = highlightsRef.current.get(h.cfi);
                         if (existing) {
-                            highlightsRef.current.set(h.cfi, { ...existing, id: h.id, color: h.color });
+                            highlightsRef.current.set(h.cfi, { ...existing, id: h.id, color: h.color, userId: h.userId });
                         }
                     });
                     const withComments = await Promise.all(
@@ -545,7 +546,7 @@ function Reader() {
                             "pointer-events": "all",
                         }
                     );
-                    highlights.set(hl.cfi, { className, text: hl.text, id: hl.id, color: hl.color });
+                    highlights.set(hl.cfi, { className, text: hl.text, id: hl.id, color: hl.color, userId: hl.userId });
                 } catch { /* ignore */ }
             }
 
