@@ -536,9 +536,7 @@ function Reader() {
             }
 
             const startCfi = entry?.progress?.cfi;
-            rendition.display(startCfi || undefined).then(() => {
-                rendition.spread("always");
-            });
+            rendition.display(startCfi || undefined);
 
             const handleResize = () => {
                 rendition.resize("100%", "100%");
