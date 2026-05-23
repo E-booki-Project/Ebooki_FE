@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import * as I from "../../styles/team/InviteStyle";
 
@@ -29,6 +29,7 @@ function Invite() {
     const [teamUserData, setTeamUserData] = useState([]);
     const [inviteToken, setInviteToken] = useState("");
     const [userMap, setUserMap] = useState({});
+    const isSubmittingRef = useRef(false);
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -44,6 +45,8 @@ function Invite() {
 
     const handleCreate = async () => {
         if (!teamName.trim()) return;
+        if (inviteToken || isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
         try {
             const [response, usersResult] = await Promise.allSettled([
                 createTeam({ teamName: teamName.trim(), bookId: Number(bookId) }),
@@ -77,6 +80,8 @@ function Invite() {
             } else {
                 alert(message || "팀 생성에 실패했습니다.");
             }
+        } finally {
+            isSubmittingRef.current = false;
         }
     };
 

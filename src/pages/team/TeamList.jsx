@@ -3,6 +3,13 @@ import * as TL from "../../styles/team/TeamListStyle";
 import TeamCard from "../../components/TeamCard";
 import { getTeamList } from "../../api/team";
 
+const USER_COLOR_MAP = {
+    BLUE: "#89d1d9",
+    GREEN: "#cdf2a7",
+    PINK: "#f2949c",
+    YELLOW: "#f2cf66",
+};
+
 function TeamList() {
     const [teams, setTeams] = useState([]);
 
@@ -21,7 +28,7 @@ function TeamList() {
                     members: team.memberProfiles.map((member, index) => ({
                         id: index,
                         image: member.profileImage,
-                        userColor: member.userColor,
+                        borderColor: USER_COLOR_MAP[member.userColor] ?? null,
                         isDefault: false,
                     })),
                 }));

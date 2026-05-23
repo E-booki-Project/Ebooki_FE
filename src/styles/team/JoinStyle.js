@@ -101,7 +101,6 @@ export const CancleButton = styled.button`
     border: 1px solid ${colors.grayDark};
     background-color: ${colors.white};
     border-radius: 8px;
-    width: 54px;
     height: 100%;
     padding: 12px;
     color: ${colors.grayDark};
