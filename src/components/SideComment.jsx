@@ -42,7 +42,7 @@ const HIGHLIGHT_COLOR_MAP = {
     YELLOW: "rgba(242, 207, 102, 0.30)",
 };
 
-function HighlightCard({ highlight, teamId, userMap }) {
+function HighlightCard({ highlight, teamId, userMap, onDelete }) {
     const currentUserId = getUserInfo()?.id;
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [comments, setComments] = useState(highlight.comments ?? []);
@@ -158,9 +158,19 @@ function HighlightCard({ highlight, teamId, userMap }) {
     const fallbackIcon = USER_ICON_MAP[highlight.color] ?? USER_ICON_MAP.PINK;
     const highlightColor = HIGHLIGHT_COLOR_MAP[highlight.color] ?? HIGHLIGHT_COLOR_MAP.BLUE;
 
+    const isMyHighlight = highlight.userId == null || Number(highlight.userId) === Number(currentUserId);
+
     return (
         <SC.SideComment onClick={() => setIsCollapsed((prev) => !prev)}>
-            <SC.Tape src={tapeImage} />
+            <SC.Tape
+                src={tapeImage}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isMyHighlight) return;
+                    onDelete?.(highlight);
+                }}
+                style={{ cursor: isMyHighlight ? "pointer" : "default" }}
+            />
             <SC.BookQuotes $color={highlightColor}>
                 <span className="highlight">{highlight.text}</span>
             </SC.BookQuotes>
