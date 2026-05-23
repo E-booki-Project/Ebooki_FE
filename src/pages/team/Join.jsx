@@ -10,7 +10,8 @@ import userGreen from "../../assets/images/user_green.png";
 import userYellow from "../../assets/images/user_yellow.png";
 
 import { joinTeam, acceptInvite } from "../../api/team";
-import { isLoggedIn } from "../../utils/authStorage";
+import { getUser } from "../../api/auth";
+import { isLoggedIn, getUserInfo } from "../../utils/authStorage";
 
 const COLOR_IMAGE_MAP = {
     PINK: userPink,
@@ -24,14 +25,33 @@ function Join() {
     const [teamData, setTeamData] = useState(null);
     const [bookData, setBookData] = useState(null);
     const [teamUserData, setTeamUserData] = useState([]);
+    const [userMap, setUserMap] = useState({});
+    const [myProfileImage, setMyProfileImage] = useState(null);
 
     useEffect(() => {
         const fetchInvite = async () => {
             try {
-                const response = await joinTeam(token);
+                const [inviteRes, usersRes] = await Promise.allSettled([
+                    joinTeam(token),
+                    getUser(),
+                ]);
+
+                if (inviteRes.status === "rejected") throw inviteRes.reason;
+
+                const response = inviteRes.value;
                 setTeamData(response.teamData.teamData);
                 setTeamUserData(response.teamData.teamUserData);
                 setBookData(response.bookData);
+
+                if (usersRes.status === "fulfilled") {
+                    const users = Array.isArray(usersRes.value) ? usersRes.value : (usersRes.value?.data ?? []);
+                    const map = {};
+                    users.forEach((u) => { map[u.id] = u.profileImage ?? null; });
+                    setUserMap(map);
+
+                    const myId = getUserInfo()?.id;
+                    if (myId != null) setMyProfileImage(map[myId] ?? null);
+                }
             } catch (error) {
                 alert(error.response?.data?.message || "초대 정보를 불러오는데 실패했습니다.");
             }
@@ -77,12 +97,16 @@ function Join() {
                         {teamUserData.map((user) => (
                             <J.Profile
                                 key={user.id}
-                                src={COLOR_IMAGE_MAP[user.userColor] || userPink}
+                                src={userMap[user.userId] || COLOR_IMAGE_MAP[user.userColor] || userPink}
+                                onError={(e) => { e.currentTarget.src = COLOR_IMAGE_MAP[user.userColor] || userPink; }}
                             />
                         ))}
                     </J.Group>
                     <J.Plus src={Plus} />
-                    <J.JoinProfile src={userYellow} />
+                    <J.JoinProfile
+                        src={myProfileImage || userYellow}
+                        onError={(e) => { e.currentTarget.src = userYellow; }}
+                    />
                 </J.GroupContainer>
                 <J.JoinContent>{teamData?.teamName}</J.JoinContent>
                 <J.ButtonWrapper>
