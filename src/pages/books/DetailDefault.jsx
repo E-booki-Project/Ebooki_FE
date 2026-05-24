@@ -33,7 +33,7 @@ function DetailDefault() {
             <D.LeftPanel>
                 <D.CoverWrapper>
                     <D.CoverImage src={bookData?.bookImage || cover} alt="cover" />
-                    <D.PreviewButton>미리보기</D.PreviewButton>
+                    {/* <D.PreviewButton>미리보기</D.PreviewButton> */}
                     <D.CoverActions>
                         <D.ActionButton $variant="bookmark" onClick={async () => {
                             try {

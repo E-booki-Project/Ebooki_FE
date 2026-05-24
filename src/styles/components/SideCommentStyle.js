@@ -114,6 +114,8 @@ export const Profile = styled.div`
 export const ProfileIcon = styled.img`
     width: 28px;
     height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
 `;
 
 export const ProfileName = styled.div`

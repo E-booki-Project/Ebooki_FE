@@ -57,6 +57,8 @@ export const Group = styled.div`
 export const Profile = styled.img`
     width: 52px;
     height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
     &:not(:first-child) {
         margin-left: -8px; /* 겹치는 정도 조정 */
     }
@@ -70,6 +72,8 @@ export const Plus = styled.img`
 export const JoinProfile = styled.img`
     width: 52px;
     height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
 `;
 
 export const JoinContent = styled.div`
