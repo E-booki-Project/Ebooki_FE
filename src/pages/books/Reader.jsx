@@ -7,7 +7,6 @@ import BookRatingModal from "../../components/BookRatingModal";
 import { connectSocket, disconnectSocket, sendHighlight } from "../../api/socket";
 import { getEpubData, getReadingEntry, saveProgress, saveHighlight, getHighlights, getHighlightComments, deleteHighlight } from "../../api/reading";
 import { getTeamDetail } from "../../api/team";
-import { getBook } from "../../api/book";
 import { getUserInfo } from "../../utils/authStorage";
 
 const HIGHLIGHT_FILL_MAP = {
@@ -109,6 +108,23 @@ function Reader() {
     const toSafeClassName = (cfi) =>
         "hl_" + String(cfi).replace(/[^a-zA-Z0-9_-]/g, "_");
 
+    // annotations.remove()의 sectionIndex 불일치로 detach가 안 될 경우를 대비해
+    // views에서 직접 unhighlight 호출 + DOM에서도 직접 제거
+    const removeHighlightVisual = useCallback((rendition, cfi, className) => {
+        try {
+            rendition?.annotations?.remove(cfi, "highlight");
+        } catch { /* ignore */ }
+        try {
+            rendition?.views()?.forEach?.((view) => {
+                try { view.unhighlight?.(cfi); } catch { /* ignore */ }
+            });
+        } catch { /* ignore */ }
+        try {
+            const hlClassName = className ?? toSafeClassName(cfi);
+            Array.from(viewerRef.current?.getElementsByClassName(hlClassName) ?? []).forEach((el) => el.remove());
+        } catch { /* ignore */ }
+    }, []);
+
     useEffect(() => {
         if (!viewerRef.current || !teamId || !bookId) return;
 
@@ -116,24 +132,12 @@ function Reader() {
         const cleanupActions = { fn: null };
 
         const init = async () => {
-            // 완독+평점 완료한 책은 즉시 차단 (epub 로딩 없이)
-            const userId = getUserInfo()?.id ?? "guest";
-            const completed = JSON.parse(localStorage.getItem(`ebookiCompleted_${userId}`) || "{}");
-            const locallyCompleted = !!completed[String(bookId)];
-
             let epubData;
             let entry = null;
-            const [entryResult, detailResult, bookResult] = await Promise.allSettled([
+            const [entryResult, detailResult] = await Promise.allSettled([
                 getReadingEntry(teamId, bookId),
                 getTeamDetail(teamId),
-                getBook(bookId),
             ]);
-
-            const serverCompleted = bookResult.status === "fulfilled" && bookResult.value?.myRating > 0;
-            if (locallyCompleted || serverCompleted) {
-                navigate(`/books/detail/${bookId}`, { state: { teamId, completedMessage: "이미 완독한 책입니다." } });
-                return;
-            }
 
             if (entryResult.status === "fulfilled") {
                 entry = entryResult.value;
@@ -186,14 +190,15 @@ function Reader() {
                 if (justCreatedRef.current.has(cfi)) return;
                 if (justSelectedRef.current) return;
                 const hlData = highlightsRef.current.get(cfi);
-                if (hlData?.userId != null && Number(hlData.userId) !== Number(userId)) return;
+                if (hlData?.userId != null && Number(hlData.userId) !== Number(getUserInfo()?.id)) return;
                 markHighlightClick();
                 e?.preventDefault?.();
                 e?.stopPropagation?.();
                 if (!window.confirm("하이라이트를 삭제할까요?")) return;
-                rendition.annotations.remove(cfi, "highlight");
+                removeHighlightVisual(rendition, cfi, hlData?.className);
                 highlightsRef.current.delete(cfi);
                 removeHighlightFromState(cfi);
+                sendHighlight(teamId, bookId, { action: "DELETE", cfiRange: cfi });
                 if (hlData?.id) {
                     deleteHighlight(teamId, hlData.id).catch(() => {});
                 }
@@ -204,18 +209,65 @@ function Reader() {
                     const data = await getHighlights(Number(bookId), Number(teamId));
                     const all = data?.highlights ?? [];
                     const pageHls = all.filter((h) => {
-                        if (!h.cfi || !startCfi || !endCfi) return false;
+                        if (!h.cfi || !h.text?.trim() || !startCfi || !endCfi) return false;
                         try {
                             return epubCfi.compare(h.cfi, startCfi) >= 0 && epubCfi.compare(h.cfi, endCfi) <= 0;
                         } catch {
                             return false;
                         }
                     });
-                    // highlightsRef에 id/color 업데이트 (클릭 핸들러가 id를 참조할 수 있도록)
+                    // highlightsRef 업데이트 + 색상 오류 수정 + 미등록 하이라이트 신규 등록
                     pageHls.forEach((h) => {
                         const existing = highlightsRef.current.get(h.cfi);
                         if (existing) {
                             highlightsRef.current.set(h.cfi, { ...existing, id: h.id, color: h.color, userId: h.userId });
+                            // 소켓 수신 시 색상이 잘못 설정된 경우 올바른 색으로 재적용
+                            if (existing.color !== h.color) {
+                                const newFill = HIGHLIGHT_FILL_MAP[h.color] ?? HIGHLIGHT_FILL_MAP.BLUE;
+                                // 현재 렌더링된 iframe SVG를 직접 수정해 즉시 반영
+                                try {
+                                    const iframes = viewerRef.current?.querySelectorAll("iframe") ?? [];
+                                    iframes.forEach((iframe) => {
+                                        try {
+                                            const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                                            if (!doc) return;
+                                            Array.from(doc.getElementsByClassName(existing.className)).forEach((g) => {
+                                                Array.from(g.getElementsByTagName("rect")).forEach((r) => {
+                                                    r.setAttribute("fill", newFill);
+                                                });
+                                            });
+                                        } catch { /* ignore */ }
+                                    });
+                                } catch { /* ignore */ }
+                                // epubjs 어노테이션도 교체해 재렌더링 시에도 올바른 색 유지
+                                try {
+                                    rendition.annotations.remove(h.cfi, "highlight");
+                                    rendition.annotations.highlight(
+                                        h.cfi, {}, makeHighlightClickHandler(h.cfi), existing.className,
+                                        {
+                                            fill: newFill,
+                                            "fill-opacity": "0.55",
+                                            "mix-blend-mode": "multiply",
+                                            "pointer-events": "all",
+                                        }
+                                    );
+                                } catch { /* ignore */ }
+                            }
+                        } else {
+                            // highlightsRef에 없는 하이라이트(타 유저 기존 하이라이트 또는 소켓 미수신)를 새로 등록
+                            const className = toSafeClassName(h.cfi);
+                            try {
+                                rendition.annotations.highlight(
+                                    h.cfi, {}, makeHighlightClickHandler(h.cfi), className,
+                                    {
+                                        fill: HIGHLIGHT_FILL_MAP[h.color] ?? HIGHLIGHT_FILL_MAP.BLUE,
+                                        "fill-opacity": "0.55",
+                                        "mix-blend-mode": "multiply",
+                                        "pointer-events": "all",
+                                    }
+                                );
+                                highlightsRef.current.set(h.cfi, { className, text: h.text, id: h.id, color: h.color, userId: h.userId });
+                            } catch { /* ignore */ }
                         }
                     });
                     const withComments = await Promise.all(
@@ -372,6 +424,11 @@ function Reader() {
                 justSelectedRef.current = true;
                 window.setTimeout(() => { justSelectedRef.current = false; }, 300);
 
+                if (!selectedText) {
+                    clearSelectionInThisContents(contents);
+                    return;
+                }
+
                 // selection 해제 전에 좌/우 판별
                 const selSide = getSelectionSide(contents);
 
@@ -402,7 +459,7 @@ function Reader() {
                     highlights.set(cfiRange, { className, text: selectedText, id: null, color });
                     justCreatedRef.current.add(cfiRange);
                     window.setTimeout(() => justCreatedRef.current.delete(cfiRange), 2000);
-                    sendHighlight(teamId, bookId, { cfiRange, text: selectedText });
+                    sendHighlight(teamId, bookId, { cfiRange, text: selectedText, color: userColorRef.current, userId: getUserInfo()?.id });
                     saveHighlight(teamId, {
                         bookId: Number(bookId),
                         cfi: cfiRange,
@@ -531,6 +588,7 @@ function Reader() {
             // display() 전에 등록해야 Safari에서 렌더 패스에 바로 반영됨
             const highlights = highlightsRef.current;
             for (const hl of entry?.highlights ?? []) {
+                if (!hl.text?.trim()) continue;
                 if (highlights.has(hl.cfi)) continue;
                 const className = toSafeClassName(hl.cfi);
                 try {
@@ -582,7 +640,7 @@ function Reader() {
             cancelled = true;
             cleanupActions.fn?.();
         };
-    }, [teamId, bookId, navigate, isAtLastPage]);
+    }, [teamId, bookId, navigate, isAtLastPage, removeHighlightVisual]);
 
     useEffect(() => {
         if (!teamId || !bookId) return;
@@ -590,11 +648,25 @@ function Reader() {
         connectSocket({
             teamId,
             bookId,
-            onHighlight: ({ cfiRange, text }) => {
+            onHighlight: ({ cfiRange, text, color, userId, action }) => {
+                if (action === "DELETE") {
+                    const hlData = highlightsRef.current.get(cfiRange);
+                    removeHighlightVisual(renditionRef.current, cfiRange, hlData?.className);
+                    highlightsRef.current.delete(cfiRange);
+                    setLeftHighlights((prev) => prev.filter((h) => h.cfi !== cfiRange));
+                    setRightHighlights((prev) => prev.filter((h) => h.cfi !== cfiRange));
+                    return;
+                }
                 const rendition = renditionRef.current;
                 const highlights = highlightsRef.current;
                 if (!rendition || highlights.has(cfiRange)) return;
 
+                if (!color) {
+                    // 백엔드가 color 필드를 제거한 경우 → API에서 올바른 색으로 등록
+                    reloadPageHighlightsRef.current?.();
+                    window.setTimeout(() => reloadPageHighlightsRef.current?.(), 2000);
+                    return;
+                }
                 const className = toSafeClassName(cfiRange);
                 rendition.annotations.highlight(
                     cfiRange,
@@ -602,19 +674,20 @@ function Reader() {
                     () => {},
                     className,
                     {
-                        fill: HIGHLIGHT_FILL_MAP[userColorRef.current] ?? HIGHLIGHT_FILL_MAP.BLUE,
+                        fill: HIGHLIGHT_FILL_MAP[color] ?? HIGHLIGHT_FILL_MAP.BLUE,
                         "fill-opacity": "0.55",
                         "mix-blend-mode": "multiply",
                         "pointer-events": "all",
                     }
                 );
-                highlights.set(cfiRange, { className, text });
+                highlights.set(cfiRange, { className, text, color, userId });
                 reloadPageHighlightsRef.current?.();
+                window.setTimeout(() => reloadPageHighlightsRef.current?.(), 2000);
             },
         });
 
         return () => disconnectSocket();
-    }, [teamId, bookId]);
+    }, [teamId, bookId, removeHighlightVisual]);
 
     useEffect(() => {
         const save = () => {
@@ -659,14 +732,15 @@ function Reader() {
     const handleHighlightDelete = useCallback((highlight) => {
         if (!window.confirm("하이라이트를 삭제할까요?")) return;
         const cfi = highlight.cfi;
-        renditionRef.current?.annotations.remove(cfi, "highlight");
+        removeHighlightVisual(renditionRef.current, cfi, highlight.className);
         highlightsRef.current.delete(cfi);
         setLeftHighlights((prev) => prev.filter((h) => h.cfi !== cfi));
         setRightHighlights((prev) => prev.filter((h) => h.cfi !== cfi));
+        sendHighlight(teamId, bookId, { action: "DELETE", cfiRange: cfi });
         if (highlight.id) {
             deleteHighlight(teamId, highlight.id).catch(() => {});
         }
-    }, [teamId]);
+    }, [teamId, bookId, removeHighlightVisual]);
 
     return (
         <R.Reader>

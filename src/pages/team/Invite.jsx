@@ -9,6 +9,7 @@ import userPink from "../../assets/images/user_pink.png";
 import userBlue from "../../assets/images/user_blue.png";
 import userGreen from "../../assets/images/user_green.png";
 import more from "../../assets/images/more.png";
+import checkIcon from "../../assets/images/check.svg";
 
 import { createTeam } from "../../api/team";
 import { getBook } from "../../api/book";
@@ -111,14 +112,15 @@ function Invite() {
                         placeholder="팀 이름을 입력해주세요"
                         value={teamName}
                         onChange={(e) => setTeamName(e.target.value)}
-                        onBlur={handleCreate}
                         onKeyDown={(e) => e.key === "Enter" && handleCreate()}
                     />
-                    <I.BackIcon
-                        src={X}
-                        style={{ width: "16px", height: "16px" }}
-                        onClick={() => setTeamName("")}
-                    />
+                    {inviteToken ? (
+                        <I.CheckIcon src={checkIcon} />
+                    ) : (
+                        <I.ConfirmButton onClick={handleCreate} disabled={!teamName.trim()}>
+                            확인
+                        </I.ConfirmButton>
+                    )}
                 </I.InputWrapeer>
                 <I.LinkContainer>
                     <I.LinkWrapper>

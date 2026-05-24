@@ -153,6 +153,8 @@ export const ListContent = styled.div`
 export const Profile = styled.img`
     width: 28px;
     height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
 `;
 
 export const Username = styled.div`
@@ -163,4 +165,24 @@ export const Username = styled.div`
 export const More = styled.img`
     width: 20px;
     height: 20px;
+`;
+
+export const ConfirmButton = styled.button`
+    background-color: ${colors.coral};
+    color: ${colors.white};
+    border: none;
+    border-radius: 9999px;
+    padding: 4px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+`;
+
+export const CheckIcon = styled.img`
+    width: 22px;
+    height: 22px;
 `;

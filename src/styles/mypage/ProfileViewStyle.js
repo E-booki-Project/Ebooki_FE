@@ -43,6 +43,8 @@ export const ProfileIcon = styled.img`
     width: 216px;
     height: 216px;
     margin-bottom: 16px;
+    border-radius: 50%;
+    object-fit: cover;
 `;
 
 export const ProfileName = styled.div`

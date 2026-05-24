@@ -9,6 +9,7 @@ import userPink from "../../assets/images/user_pink.png";
 import userBlue from "../../assets/images/user_blue.png";
 import userGreen from "../../assets/images/user_green.png";
 import more from "../../assets/images/more.png";
+import checkIcon from "../../assets/images/check.svg";
 
 import { getTeamDetail, updateTeam, reissueInviteLink } from "../../api/team";
 import { getUser } from "../../api/auth";
@@ -28,6 +29,7 @@ function EditTeam() {
     const [teamUserData, setTeamUserData] = useState([]);
     const [inviteToken, setInviteToken] = useState(null);
     const [userMap, setUserMap] = useState({});
+    const [isConfirmed, setIsConfirmed] = useState(false);
 
     useEffect(() => {
         const fetchTeamDetail = async () => {
@@ -69,6 +71,7 @@ function EditTeam() {
         if (!teamName.trim()) return;
         try {
             await updateTeam(teamId, teamName.trim());
+            setIsConfirmed(true);
         } catch (error) {
             alert(error.response?.data?.message || "팀 이름 수정에 실패했습니다.");
         }
@@ -102,15 +105,17 @@ function EditTeam() {
                     <I.InputFeild
                         placeholder="팀 이름을 입력해주세요"
                         value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        onBlur={handleUpdate}
+                        onChange={(e) => { setTeamName(e.target.value); setIsConfirmed(false); }}
+                        onFocus={() => setIsConfirmed(false)}
                         onKeyDown={(e) => e.key === "Enter" && handleUpdate()}
                     />
-                    <I.BackIcon
-                        src={X}
-                        style={{ width: "16px", height: "16px" }}
-                        onClick={() => setTeamName("")}
-                    />
+                    {isConfirmed ? (
+                        <I.CheckIcon src={checkIcon} />
+                    ) : (
+                        <I.ConfirmButton onClick={handleUpdate} disabled={!teamName.trim()}>
+                            확인
+                        </I.ConfirmButton>
+                    )}
                 </I.InputWrapeer>
                 <I.LinkContainer>
                     <I.LinkWrapper>
