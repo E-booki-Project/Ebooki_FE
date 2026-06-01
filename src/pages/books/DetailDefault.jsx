@@ -55,7 +55,7 @@ function DetailDefault() {
             <D.RightPanel>
                 <D.BookInfoSection>
                     <D.BookTitle>{bookData?.title}</D.BookTitle>
-                    <D.BookMeta>{bookData ? `${bookData.author} 지음 ${bookData.publisher}` : ""}</D.BookMeta>
+                    <D.BookMeta>{bookData ? `${bookData.author} 지음 | ${bookData.publisher}` : ""}</D.BookMeta>
 
                     <D.RatingWrapper>
                         {Array.from({ length: 5 }).map((_, index) => {
