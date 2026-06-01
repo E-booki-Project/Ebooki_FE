@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
-import { getBook, toggleLike } from "../../api/book";
+import { getBook, getMyBookItems, toggleLike } from "../../api/book";
 import { getHighlights, getHighlightComments } from "../../api/reading";
 import { getUserInfo } from "../../utils/authStorage";
 
@@ -28,8 +28,14 @@ function Detail() {
 
     const fetchBook = async () => {
         try {
-            const data = await getBook(bookId);
-            setBookData(newRatingFromNav != null ? { ...data, myRating: newRatingFromNav } : data);
+            const [bookResult, myResult] = await Promise.allSettled([
+                getBook(bookId),
+                getMyBookItems(bookId),
+            ]);
+            if (bookResult.status !== "fulfilled") throw bookResult.reason;
+            const data = bookResult.value;
+            const myRating = newRatingFromNav ?? myResult.value?.myRating ?? data.myRating;
+            setBookData({ ...data, myRating });
             setLiked(data.liked);
         } catch (error) {
             alert(error.response?.data?.message || "책 정보를 불러오는데 실패했습니다.");
@@ -145,7 +151,7 @@ function Detail() {
             <D.RightPanel>
                 <D.BookInfoSection>
                     <D.BookTitle>{bookData?.title}</D.BookTitle>
-                    <D.BookMeta>{bookData ? `${bookData.author} 지음 ${bookData.publisher}` : ""}</D.BookMeta>
+                    <D.BookMeta>{bookData ? `${bookData.author} 지음 | ${bookData.publisher}` : ""}</D.BookMeta>
 
                     <D.RatingWrapper onClick={() => setIsRatingOpen(true)}>
                         {Array.from({ length: 5 }).map((_, index) => {

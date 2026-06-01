@@ -7,6 +7,7 @@ import BookRatingModal from "../../components/BookRatingModal";
 import { connectSocket, disconnectSocket, sendHighlight } from "../../api/socket";
 import { getEpubData, getReadingEntry, saveProgress, saveHighlight, getHighlights, getHighlightComments, deleteHighlight } from "../../api/reading";
 import { getTeamDetail } from "../../api/team";
+import { getMyBookItems } from "../../api/book";
 import { getUserInfo } from "../../utils/authStorage";
 
 const HIGHLIGHT_FILL_MAP = {
@@ -37,6 +38,7 @@ function Reader() {
 
     const isRatingOpenRef = useRef(false);
     const [isRatingOpen, setIsRatingOpen] = useState(false);
+    const [myRating, setMyRating] = useState(0);
 
     const [readPercent, setReadPercent] = useState(0);
     const locationRef = useRef(null);
@@ -134,10 +136,14 @@ function Reader() {
         const init = async () => {
             let epubData;
             let entry = null;
-            const [entryResult, detailResult] = await Promise.allSettled([
+            const [entryResult, detailResult, bookResult] = await Promise.allSettled([
                 getReadingEntry(teamId, bookId),
                 getTeamDetail(teamId),
+                getMyBookItems(bookId),
             ]);
+            if (bookResult.status === "fulfilled") {
+                setMyRating(bookResult.value?.myRating ?? 0);
+            }
 
             if (entryResult.status === "fulfilled") {
                 entry = entryResult.value;
@@ -747,8 +753,9 @@ function Reader() {
             {isRatingOpen && (
                 <BookRatingModal
                     bookId={bookId}
+                    initialRating={myRating}
                     onClose={() => { isRatingOpenRef.current = false; setIsRatingOpen(false); }}
-                    onRated={(newRating) => navigate(`/books/detail/${bookId}`, { state: { teamId, newRating } })}
+                    onRated={(newRating) => { setMyRating(newRating); navigate(`/books/detail/${bookId}`, { state: { teamId, newRating } }); }}
                 />
             )}
 
