@@ -23,6 +23,12 @@ function Signin() {
         navigate("/signup");
     };
 
+    const handleKakaoLogin = () => {
+        const key = import.meta.env.VITE_KAKAO_REST_API_KEY;
+        const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+        window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${key}&redirect_uri=${redirectUri}&response_type=code`;
+    };
+
     const [form, setForm] = useState({
         email: "",
         password: "",
@@ -175,7 +181,7 @@ function Signin() {
                 <S.IconWrapper>
                     <S.SocialIcon src={google} alt="google" />
                     <S.SocialIcon src={naver} alt="naver" />
-                    <S.SocialIcon src={kakao} alt="kakao" />
+                    <S.SocialIcon src={kakao} alt="kakao" onClick={handleKakaoLogin} style={{ cursor: "pointer" }} />
                 </S.IconWrapper>
             </S.SocialContainer>
         </S.Signin>

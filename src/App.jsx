@@ -22,6 +22,7 @@ if (typeof window !== "undefined") {
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Signin from "./pages/auth/Signin";
 import Signup from "./pages/auth/Signup";
+import KakaoCallback from "./pages/auth/KakaoCallback";
 
 import Detail from "./pages/books/Detail";
 import DetailDefault from "./pages/books/DetailDefault";
@@ -54,6 +55,7 @@ function App() {
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
+                <Route path="/auth/login/kakao" element={<KakaoCallback />} />
 
                 {/* 헤더 있는 페이지 */}
                 <Route element={<AppLayout />}>
