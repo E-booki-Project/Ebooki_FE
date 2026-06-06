@@ -20,6 +20,11 @@ export const logout = async () => {
     return response.data;
 };
 
+export const kakaoLogin = async (code) => {
+    const response = await axiosInstance.get("/auth/login/kakao", { params: { code } });
+    return response.data;
+};
+
 export const findpassword = async () => {};
 
 export const deleteAccount = async () => {

@@ -23,6 +23,8 @@ function Detail() {
     const [liked, setLiked] = useState(false);
     const [timeline, setTimeline] = useState([]);
     const [activeTab, setActiveTab] = useState(null);
+    const [notePage, setNotePage] = useState(1);
+    const NOTES_PER_PAGE = 5;
     const [isRatingOpen, setIsRatingOpen] = useState(false);
     const [toast, setToast] = useState(state?.completedMessage ?? null);
 
@@ -106,7 +108,12 @@ function Detail() {
 
     const handleTabClick = (tab) => {
         setActiveTab((prev) => (prev === tab ? null : tab));
+        setNotePage(1);
     };
+
+    const totalNotePages = Math.ceil(visibleItems.length / NOTES_PER_PAGE);
+    const paginatedItems = visibleItems.slice((notePage - 1) * NOTES_PER_PAGE, notePage * NOTES_PER_PAGE);
+
 
     return (
         <D.Detail>
@@ -148,7 +155,7 @@ function Detail() {
             </D.LeftPanel>
 
             {/* 오른쪽 패널 */}
-            <D.RightPanel>
+            <D.InfoPanel>
                 <D.BookInfoSection>
                     <D.BookTitle>{bookData?.title}</D.BookTitle>
                     <D.BookMeta>{bookData ? `${bookData.author} 지음 | ${bookData.publisher}` : ""}</D.BookMeta>
@@ -173,8 +180,10 @@ function Detail() {
 
                     <D.ReadButton onClick={() => teamId && navigate(`/reader/${teamId}/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
                 </D.BookInfoSection>
+            </D.InfoPanel>
 
-                {/* 독서 메모 */}
+            {/* 독서 메모 */}
+            <D.NotePanel>
                 <D.NoteSection>
                     <D.NoteHeader>
                         <D.NoteTitle>독서 메모</D.NoteTitle>
@@ -197,18 +206,13 @@ function Detail() {
                     </D.NoteHeader>
 
                     <D.NoteList>
-                        {visibleItems.map((item) => {
+                        {paginatedItems.map((item) => {
                             const isHighlightItem = item.type === "HIGHLIGHT";
-
                             return (
-                                <D.NoteCard
-                                    key={`${item.type}-${item.createdAt}`}
-                                >
+                                <D.NoteCard key={`${item.type}-${item.createdAt}`}>
                                     {isHighlightItem && <D.NoteHighlight src={highlight} alt="" />}
-
                                     <D.NoteContent>
                                         <D.NoteText>{item.text}</D.NoteText>
-
                                         <D.NoteFooter>
                                             <div />
                                             <D.NoteDate>
@@ -221,7 +225,14 @@ function Detail() {
                         })}
                     </D.NoteList>
                 </D.NoteSection>
-            </D.RightPanel>
+
+                {totalNotePages > 1 && (
+                    <D.PaginationWrapper>
+                        <D.PageBtn disabled={notePage === 1} onClick={() => setNotePage((p) => p - 1)}>{"<"}</D.PageBtn>
+                        <D.PageBtn disabled={notePage === totalNotePages} onClick={() => setNotePage((p) => p + 1)}>{">"}</D.PageBtn>
+                    </D.PaginationWrapper>
+                )}
+            </D.NotePanel>
         </D.Detail>
     );
 }
