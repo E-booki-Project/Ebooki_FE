@@ -91,11 +91,19 @@ export const ActionIcon = styled.img`
     height: 24px;
 `;
 
-export const RightPanel = styled.div`
+export const InfoPanel = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin-top: 77px;
+`;
+
+export const NotePanel = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-top: 77px;
+    margin-left: 48px;
+    flex: 1;
 `;
 
 export const BookInfoSection = styled.section`
@@ -147,7 +155,8 @@ export const ReadButton = styled.div`
 `;
 
 export const NoteSection = styled.section`
-    margin: 142px 0 50px;
+    margin-top: 120px;
+    margin-bottom: 16px;
 `;
 
 export const NoteHeader = styled.div`
@@ -157,6 +166,7 @@ export const NoteHeader = styled.div`
     justify-content: space-between;
     margin-left: 35px;
     margin-bottom: 24px;
+    width: 512px;
 `;
 export const NoteTitle = styled.div`
     ${typography.subHeading};
@@ -228,4 +238,27 @@ export const NotePage = styled.div`
 
 export const NoteDate = styled.div`
     ${typography.bodySmall};
+`;
+
+export const PaginationWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 0 38px;
+    margin-top: 8px;
+    margin-bottom: 24px;
+    width: 544px;
+`;
+
+export const PageBtn = styled.button`
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
+    ${typography.bodyBaseSingle};
+    font-size: 14px;
+    color: ${({ $active }) => ($active ? colors.black : colors.grayDark)};
+    font-weight: ${({ $active }) => ($active ? "700" : "400")};
+    opacity: ${({ disabled }) => (disabled ? "0.4" : "1")};
 `;
