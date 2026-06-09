@@ -52,7 +52,7 @@ function DetailDefault() {
                 </D.CoverWrapper>
             </D.LeftPanel>
 
-            <D.RightPanel>
+            <D.InfoPanel>
                 <D.BookInfoSection>
                     <D.BookTitle>{bookData?.title}</D.BookTitle>
                     <D.BookMeta>{bookData ? `${bookData.author} 지음 | ${bookData.publisher}` : ""}</D.BookMeta>
@@ -74,7 +74,7 @@ function DetailDefault() {
 
                     <D.ReadButton onClick={() => navigate(`/invite/${bookId}`)}>같이 읽으러 가기</D.ReadButton>
                 </D.BookInfoSection>
-            </D.RightPanel>
+            </D.InfoPanel>
         </D.Detail>
     );
 }
