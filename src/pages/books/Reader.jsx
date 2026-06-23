@@ -385,6 +385,31 @@ function Reader() {
                         doc.head.appendChild(style);
                     }
                 } catch { /* ignore */ }
+                // iframe에 포커스가 있어도 방향키로 페이지 넘김 동작하도록
+                try {
+                    contents.window.addEventListener("keydown", (e) => {
+                        if (e.key === "ArrowLeft") { e.preventDefault(); handlePrev(); }
+                        else if (e.key === "ArrowRight") { e.preventDefault(); handleNext(); }
+                    });
+                } catch { /* ignore */ }
+                // 드래그가 현재 페이지 뷰포트 밖(다음 페이지 컬럼)으로 넘어가면 선택 취소
+                try {
+                    contents.document.addEventListener("selectionchange", () => {
+                        const sel = contents.window?.getSelection?.();
+                        if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+                        const range = sel.getRangeAt(0);
+                        const viewW = contents.document.documentElement.clientWidth;
+                        const outOfBounds = Array.from(range.getClientRects()).some(
+                            (r) => r.left > viewW + 20 || r.right > viewW + 20
+                        );
+                        if (outOfBounds) {
+                            sel.removeAllRanges();
+                            window.clearTimeout(selectionTimerRef.current);
+                            selectionReadyRef.current = false;
+                            pendingSelectionRef.current = null;
+                        }
+                    }, { passive: true });
+                } catch { /* ignore */ }
             };
 
             const onSelected = (cfiRange, contents) => {
@@ -434,6 +459,24 @@ function Reader() {
                     clearSelectionInThisContents(contents);
                     return;
                 }
+
+                // 선택 범위가 현재 페이지 viewport를 벗어나면 무시
+                try {
+                    const sel = contents.window?.getSelection?.();
+                    if (sel && sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        const viewW = contents.document.documentElement.clientWidth;
+                        const viewH = contents.document.documentElement.clientHeight;
+                        const rects = Array.from(range.getClientRects());
+                        const outOfBounds = rects.length > 0 && rects.some(
+                            (r) => r.right > viewW + 10 || r.bottom > viewH + 10
+                        );
+                        if (outOfBounds) {
+                            clearSelectionInThisContents(contents);
+                            return;
+                        }
+                    }
+                } catch { /* ignore */ }
 
                 // selection 해제 전에 좌/우 판별
                 const selSide = getSelectionSide(contents);
@@ -500,13 +543,11 @@ function Reader() {
                 clearSelectionInThisContents(contents);
             };
 
-            const onRenditionClick = (e, contents) => {
+            const onRenditionClick = (_e, contents) => {
                 if (isRatingOpenRef.current) return;
-                if (navLockRef.current) return;
                 if (justClickedHighlightRef.current) return;
                 if (hasSelectionInThisContents(contents)) {
                     if (isTouchDevice && selectionReadyRef.current) {
-                        // 터치 기기: 다른 곳 탭 시 pending selection을 즉시 POST
                         window.clearTimeout(selectionTimerRef.current);
                         const p = pendingSelectionRef.current;
                         selectionReadyRef.current = false;
@@ -516,32 +557,6 @@ function Reader() {
                     } else {
                         clearSelectionInThisContents(contents);
                     }
-                    return;
-                }
-                const frame = bookFrameRef.current;
-                const iframeEl = contents?.document?.defaultView?.frameElement;
-                if (!frame || !iframeEl) return;
-                const frameRect = frame.getBoundingClientRect();
-                const iframeRect = iframeEl.getBoundingClientRect();
-                const globalX = iframeRect.left + e.clientX;
-                const xInFrame = globalX - frameRect.left;
-                const leftZone = frameRect.width * 0.1;
-                const rightZone = frameRect.width * 0.9;
-                if (xInFrame <= leftZone) {
-                    lockNav();
-                    rendition.prev();
-                    return;
-                }
-                if (xInFrame >= rightZone) {
-                    if (isAtLastPage()) {
-                        const loc = locationRef.current;
-                        if (loc) saveProgress(bookId, { spineIndex: loc.start.index, cfi: loc.start.cfi, percent: 100 }).catch(() => {});
-                        isRatingOpenRef.current = true;
-                        setIsRatingOpen(true);
-                        return;
-                    }
-                    lockNav();
-                    rendition.next();
                 }
             };
 
@@ -646,7 +661,7 @@ function Reader() {
             cancelled = true;
             cleanupActions.fn?.();
         };
-    }, [teamId, bookId, navigate, isAtLastPage, removeHighlightVisual]);
+    }, [teamId, bookId, navigate, isAtLastPage, removeHighlightVisual, handlePrev, handleNext]);
 
     useEffect(() => {
         if (!teamId || !bookId) return;
@@ -760,11 +775,9 @@ function Reader() {
             )}
 
             <R.ReaderRow>
-                <R.SideSection onClick={handlePrev}>
+                <R.SideSection>
                     {leftHighlights.length > 0 && (
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <SideComment highlights={leftHighlights} teamId={teamId} onDelete={handleHighlightDelete} />
-                        </div>
+                        <SideComment highlights={leftHighlights} teamId={teamId} onDelete={handleHighlightDelete} />
                     )}
                 </R.SideSection>
 
@@ -777,11 +790,9 @@ function Reader() {
                     </R.BookFrame>
                 </R.CenterSection>
 
-                <R.SideSection onClick={handleNext}>
+                <R.SideSection>
                     {rightHighlights.length > 0 && (
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <SideComment highlights={rightHighlights} teamId={teamId} onDelete={handleHighlightDelete} />
-                        </div>
+                        <SideComment highlights={rightHighlights} teamId={teamId} onDelete={handleHighlightDelete} />
                     )}
                 </R.SideSection>
             </R.ReaderRow>
