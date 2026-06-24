@@ -102,13 +102,14 @@ export const NotePanel = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 77px;
-    margin-left: 48px;
-    flex: 1;
+    margin-left: auto;
+    margin-right: 160px;
 `;
 
 export const BookInfoSection = styled.section`
     margin-bottom: 32px;
     margin-left: 35px;
+    
 `;
 
 export const BookTitle = styled.div`
@@ -238,6 +239,147 @@ export const NotePage = styled.div`
 
 export const NoteDate = styled.div`
     ${typography.bodySmall};
+`;
+
+export const AiTopicList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+`;
+
+export const AiTopicCard = styled.div`
+    position: relative;
+    background-color: ${colors.white};
+    padding: 20px 24px;
+    border-radius: 8px;
+    border: solid 1px ${colors.grayMedium};
+    width: 516px;
+    margin-left: 35px;
+    cursor: pointer;
+`;
+
+export const AiTopicBadge = styled.div`
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background-color: ${colors.blue};
+    color: ${colors.white};
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+`;
+
+export const AiTopicQuestion = styled.div`
+    ${typography.bodyBase};
+    font-size: 15px;
+    font-weight: 600;
+    color: ${colors.black};
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+`;
+
+export const AiIntro = styled.div`
+    ${typography.bodySmall};
+    color: ${colors.grayDark};
+    margin-left: 35px;
+    width: 516px;
+`;
+
+export const AiCommentList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 16px;
+    margin-bottom: 16px;
+    border-top: 1px solid ${colors.grayLighter};
+`;
+
+export const AiCommentItem = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+export const AiCommentProfile = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+`;
+
+export const AiCommentProfileIcon = styled.img`
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+`;
+
+export const AiCommentAuthor = styled.div`
+    ${typography.bodyStrong};
+    font-size: 13px;
+    color: ${colors.black};
+`;
+
+export const AiCommentText = styled.div`
+    ${typography.bodySmall};
+    font-size: 13px;
+    white-space: pre-wrap;
+    color: ${colors.black};
+    padding: 9px;
+`;
+
+export const AiInputWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    background-color: ${colors.grayLighter};
+    border-radius: 8px;
+    min-height: 36px;
+    padding: 8px 16px;
+    justify-content: space-between;
+`;
+
+export const AiInput = styled.textarea`
+    flex: 1;
+    border: none;
+    background-color: transparent;
+    color: ${colors.grayDark};
+    ${typography.bodyBaseSingle}
+    font-size: 13px;
+    outline: none;
+    box-shadow: none;
+    resize: none;
+    overflow-y: auto;
+    max-height: 90px;
+    line-height: 1.5;
+    padding: 2px 0;
+
+    &::placeholder {
+        color: ${colors.grayMedium};
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
+`;
+
+export const AiSendIcon = styled.img`
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+`;
+
+export const AiEmptyState = styled.div`
+    ${typography.bodySmall};
+    color: ${colors.grayDark};
+    width: 516px;
+    margin-left: 35px;
+    padding: 40px 24px;
+    text-align: center;
+    background-color: ${colors.grayLighter};
+    border-radius: 8px;
 `;
 
 export const PaginationWrapper = styled.div`

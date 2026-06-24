@@ -8,8 +8,18 @@ import starFull from "../assets/images/star_full.png";
 
 const COUNT = 5;
 
+// TODO: 백엔드 추천 API 연동 전까지의 임시 데이터. 연동 후 patchRating 응답 또는
+// 별도 추천 API 호출 결과로 추천 도서명을 받아오도록 교체.
+const DUMMY_RECOMMENDATIONS = ["데미안", "어린 왕자", "1984", "노인과 바다", "위대한 개츠비"];
+
 function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
     const [rating, setRating] = useState(initialRating ?? 0);
+    const [recommendation, setRecommendation] = useState(null);
+
+    const handleRecommendClick = () => {
+        const dummy = DUMMY_RECOMMENDATIONS[Math.floor(Math.random() * DUMMY_RECOMMENDATIONS.length)];
+        setRecommendation(dummy);
+    };
 
     const getClickedRating = (_e, i) => i + 1;
 
@@ -67,6 +77,16 @@ function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
                             );
                         })}
                     </BR.RatingWrapper>
+
+                    {recommendation ? (
+                        <BR.RecommendText>
+                            <BR.RecommendTitle>{recommendation}</BR.RecommendTitle> 도서를 추천드립니다.
+                        </BR.RecommendText>
+                    ) : (
+                        <BR.RecommendButton type="button" onClick={handleRecommendClick}>
+                            비슷한 도서 추천받기
+                        </BR.RecommendButton>
+                    )}
                 </BR.Content>
             </BR.BookRating>
         </BR.Overlay>
