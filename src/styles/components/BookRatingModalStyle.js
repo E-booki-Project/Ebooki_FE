@@ -78,3 +78,27 @@ export const StarImg = styled.img`
     height: 32px;
     display: block;
 `;
+
+export const RecommendButton = styled.button`
+    border: none;
+    border-radius: 8px;
+    background-color: ${colors.coral};
+    color: ${colors.white};
+    ${typography.bodyBaseSingle};
+    font-size: 14px;
+    padding: 0 20px;
+    height: 40px;
+    cursor: pointer;
+    margin-top: 3px;
+`;
+
+export const RecommendText = styled.div`
+    ${typography.bodyBase};
+    color: ${colors.black};
+    margin-top: 3px;
+`;
+
+export const RecommendTitle = styled.span`
+    color: ${colors.coral};
+    font-weight: 700;
+`;

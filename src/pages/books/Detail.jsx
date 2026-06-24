@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
 import { getBook, getMyBookItems, toggleLike } from "../../api/book";
@@ -12,6 +12,169 @@ import starFull from "../../assets/images/star_full.png";
 import bookmark from "../../assets/images/bookmark.png";
 import link from "../../assets/images/link_black.png";
 import highlight from "../../assets/images/highlight.png";
+import enter from "../../assets/images/enter.png";
+import more from "../../assets/images/morehorizontal.png";
+import userIcon from "../../assets/images/user.png";
+
+const formatNoteDate = (value) => {
+    const d = new Date(value);
+    return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}  ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+// TODO: 백엔드 미연동 상태의 임시 데이터. 팀 전원이 완독(진행도 100%)하면
+// AI가 "ㅋㅋㅋ" 같은 단순 감상평을 제외하고 토론 주제를 최대 3개까지 생성해 내려줄 예정.
+const AI_TOPICS_MOCK = [
+    {
+        id: "topic-1",
+        question: "두 가문의 오랜 반목이 로미오와 줄리엣의 비극으로 이어진 근본적인 원인은 무엇이라고 생각하나요?",
+        comments: [
+            { id: "c1", author: "민지", profileImage: null, isMine: false, text: "어른들의 명예와 자존심 싸움이 죄 없는 다음 세대까지 희생시킨 것 같아요.", createdAt: "2026-06-20T13:10:00" },
+            { id: "c2", author: "현우", profileImage: null, isMine: false, text: "소통의 부재가 가장 큰 문제였다고 봐요. 누구도 먼저 화해를 시도하지 않았으니까요.", createdAt: "2026-06-20T14:32:00" },
+        ],
+    },
+    {
+        id: "topic-2",
+        question: "줄리엣의 선택은 사랑을 위한 용기였을까요, 아니면 충동적인 결정이었을까요?",
+        comments: [
+            { id: "c3", author: "서윤", profileImage: null, isMine: false, text: "그 나이의 줄리엣에게는 그것이 할 수 있는 최선의 용기였다고 생각해요.", createdAt: "2026-06-21T09:05:00" },
+        ],
+    },
+    {
+        id: "topic-3",
+        question: "현대 사회에서도 가족이나 집단 간의 반목이 개인의 삶을 좌우하는 경우가 있을까요?",
+        comments: [],
+    },
+];
+
+function AiTopicCard({ topic, index, onAddComment, onEditComment, onDeleteComment }) {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [commentText, setCommentText] = useState("");
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [editingId, setEditingId] = useState(null);
+    const [editText, setEditText] = useState("");
+    const isComposingRef = useRef(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        if (!openMenuId) return;
+        const handleOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setOpenMenuId(null);
+            }
+        };
+        document.addEventListener("mousedown", handleOutside);
+        return () => document.removeEventListener("mousedown", handleOutside);
+    }, [openMenuId]);
+
+    const handleSubmit = () => {
+        const text = commentText.trim();
+        if (!text) return;
+        onAddComment(topic.id, text);
+        setCommentText("");
+    };
+
+    const handleKeyDown = (e) => {
+        if (isComposingRef.current) return;
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+        }
+    };
+
+    const handleEditStart = (c) => {
+        setOpenMenuId(null);
+        setEditingId(c.id);
+        setEditText(c.text);
+    };
+
+    const handleEditSubmit = (commentId) => {
+        const text = editText.trim();
+        if (!text) return;
+        onEditComment(topic.id, commentId, text);
+        setEditingId(null);
+        setEditText("");
+    };
+
+    const handleDelete = (commentId) => {
+        setOpenMenuId(null);
+        onDeleteComment(topic.id, commentId);
+    };
+
+    return (
+        <D.AiTopicCard onClick={() => setIsCollapsed((prev) => !prev)}>
+            <D.AiTopicBadge>AI 토론 주제 {index + 1}</D.AiTopicBadge>
+            <D.AiTopicQuestion>{topic.question}</D.AiTopicQuestion>
+
+            {!isCollapsed && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    {topic.comments.length > 0 && (
+                        <D.AiCommentList>
+                            {topic.comments.map((c) => (
+                                <D.AiCommentItem key={c.id}>
+                                    <D.AiCommentHeader>
+                                        <D.AiCommentProfile>
+                                            <D.AiCommentProfileIcon
+                                                src={c.profileImage || userIcon}
+                                                onError={(e) => { e.currentTarget.src = userIcon; }}
+                                            />
+                                            <D.AiCommentAuthor>{c.author}</D.AiCommentAuthor>
+                                        </D.AiCommentProfile>
+                                        {c.isMine && (
+                                            <D.AiMoreWrapper ref={openMenuId === c.id ? menuRef : null}>
+                                                <D.AiMoreIcon
+                                                    src={more}
+                                                    onClick={() => setOpenMenuId(openMenuId === c.id ? null : c.id)}
+                                                />
+                                                {openMenuId === c.id && (
+                                                    <D.AiMoreMenu>
+                                                        <D.AiMoreMenuItem onClick={() => handleEditStart(c)}>수정</D.AiMoreMenuItem>
+                                                        <D.AiMoreMenuDivider />
+                                                        <D.AiMoreMenuItem $danger onClick={() => handleDelete(c.id)}>삭제</D.AiMoreMenuItem>
+                                                    </D.AiMoreMenu>
+                                                )}
+                                            </D.AiMoreWrapper>
+                                        )}
+                                    </D.AiCommentHeader>
+
+                                    {editingId === c.id ? (
+                                        <D.AiInputWrapper style={{ marginBottom: "4px" }}>
+                                            <D.AiInput
+                                                rows={1}
+                                                value={editText}
+                                                onChange={(e) => setEditText(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleEditSubmit(c.id); }
+                                                    if (e.key === "Escape") setEditingId(null);
+                                                }}
+                                                autoFocus
+                                            />
+                                            <D.AiSendIcon src={enter} onClick={() => handleEditSubmit(c.id)} />
+                                        </D.AiInputWrapper>
+                                    ) : (
+                                        <D.AiCommentText>{c.text}</D.AiCommentText>
+                                    )}
+                                </D.AiCommentItem>
+                            ))}
+                        </D.AiCommentList>
+                    )}
+
+                    <D.AiInputWrapper>
+                        <D.AiInput
+                            rows={1}
+                            placeholder="이 주제에 대한 생각을 남겨보세요"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            onCompositionStart={() => { isComposingRef.current = true; }}
+                            onCompositionEnd={() => { isComposingRef.current = false; }}
+                        />
+                        <D.AiSendIcon src={enter} onClick={handleSubmit} />
+                    </D.AiInputWrapper>
+                </div>
+            )}
+        </D.AiTopicCard>
+    );
+}
 
 function Detail() {
     const { bookId } = useParams();
@@ -22,11 +185,12 @@ function Detail() {
     const [bookData, setBookData] = useState(null);
     const [liked, setLiked] = useState(false);
     const [timeline, setTimeline] = useState([]);
-    const [activeTab, setActiveTab] = useState(null);
+    const [activeTab, setActiveTab] = useState("ai");
     const [notePage, setNotePage] = useState(1);
     const NOTES_PER_PAGE = 5;
     const [isRatingOpen, setIsRatingOpen] = useState(false);
     const [toast, setToast] = useState(state?.completedMessage ?? null);
+    const [aiTopics, setAiTopics] = useState(AI_TOPICS_MOCK);
 
     const fetchBook = async () => {
         try {
@@ -111,6 +275,49 @@ function Detail() {
         setNotePage(1);
     };
 
+    const handleAddAiComment = (topicId, text) => {
+        setAiTopics((prev) =>
+            prev.map((t) =>
+                t.id === topicId
+                    ? {
+                          ...t,
+                          comments: [
+                              ...t.comments,
+                              {
+                                  id: `local-${Date.now()}`,
+                                  author: getUserInfo()?.nickname ?? "나",
+                                  profileImage: getUserInfo()?.profileImage ?? null,
+                                  isMine: true,
+                                  text,
+                                  createdAt: new Date().toISOString(),
+                              },
+                          ],
+                      }
+                    : t
+            )
+        );
+    };
+
+    const handleEditAiComment = (topicId, commentId, text) => {
+        setAiTopics((prev) =>
+            prev.map((t) =>
+                t.id === topicId
+                    ? { ...t, comments: t.comments.map((c) => (c.id === commentId ? { ...c, text } : c)) }
+                    : t
+            )
+        );
+    };
+
+    const handleDeleteAiComment = (topicId, commentId) => {
+        setAiTopics((prev) =>
+            prev.map((t) =>
+                t.id === topicId
+                    ? { ...t, comments: t.comments.filter((c) => c.id !== commentId) }
+                    : t
+            )
+        );
+    };
+
     const totalNotePages = Math.ceil(visibleItems.length / NOTES_PER_PAGE);
     const paginatedItems = visibleItems.slice((notePage - 1) * NOTES_PER_PAGE, notePage * NOTES_PER_PAGE);
 
@@ -190,6 +397,13 @@ function Detail() {
                         <D.SortTabs>
                             <D.TabButton
                                 type="button"
+                                $active={activeTab === "ai"}
+                                onClick={() => handleTabClick("ai")}
+                            >
+                                AI 토론
+                            </D.TabButton>
+                            <D.TabButton
+                                type="button"
                                 $active={activeTab === "highlight"}
                                 onClick={() => handleTabClick("highlight")}
                             >
@@ -205,28 +419,45 @@ function Detail() {
                         </D.SortTabs>
                     </D.NoteHeader>
 
-                    <D.NoteList>
-                        {paginatedItems.map((item) => {
-                            const isHighlightItem = item.type === "HIGHLIGHT";
-                            return (
-                                <D.NoteCard key={`${item.type}-${item.createdAt}`}>
-                                    {isHighlightItem && <D.NoteHighlight src={highlight} alt="" />}
-                                    <D.NoteContent>
-                                        <D.NoteText>{item.text}</D.NoteText>
-                                        <D.NoteFooter>
-                                            <div />
-                                            <D.NoteDate>
-                                                {(() => { const d = new Date(item.createdAt); return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}  ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; })()}
-                                            </D.NoteDate>
-                                        </D.NoteFooter>
-                                    </D.NoteContent>
-                                </D.NoteCard>
-                            );
-                        })}
-                    </D.NoteList>
+                    {activeTab === "ai" ? (
+                        <D.AiTopicList>
+                            {aiTopics.length > 0 ? (
+                                aiTopics.slice(0, 3).map((topic, index) => (
+                                    <AiTopicCard
+                                        key={topic.id}
+                                        topic={topic}
+                                        index={index}
+                                        onAddComment={handleAddAiComment}
+                                        onEditComment={handleEditAiComment}
+                                        onDeleteComment={handleDeleteAiComment}
+                                    />
+                                ))
+                            ) : (
+                                <D.AiEmptyState>팀원 모두가 완독하면 AI가 토론 주제를 제안해드려요.</D.AiEmptyState>
+                            )}
+                        </D.AiTopicList>
+                    ) : (
+                        <D.NoteList>
+                            {paginatedItems.map((item) => {
+                                const isHighlightItem = item.type === "HIGHLIGHT";
+                                return (
+                                    <D.NoteCard key={`${item.type}-${item.createdAt}`}>
+                                        {isHighlightItem && <D.NoteHighlight src={highlight} alt="" />}
+                                        <D.NoteContent>
+                                            <D.NoteText>{item.text}</D.NoteText>
+                                            <D.NoteFooter>
+                                                <div />
+                                                <D.NoteDate>{formatNoteDate(item.createdAt)}</D.NoteDate>
+                                            </D.NoteFooter>
+                                        </D.NoteContent>
+                                    </D.NoteCard>
+                                );
+                            })}
+                        </D.NoteList>
+                    )}
                 </D.NoteSection>
 
-                {totalNotePages > 1 && (
+                {activeTab !== "ai" && totalNotePages > 1 && (
                     <D.PaginationWrapper>
                         <D.PageBtn disabled={notePage === 1} onClick={() => setNotePage((p) => p - 1)}>{"<"}</D.PageBtn>
                         <D.PageBtn disabled={notePage === totalNotePages} onClick={() => setNotePage((p) => p + 1)}>{">"}</D.PageBtn>
