@@ -102,13 +102,14 @@ export const NotePanel = styled.div`
     display: flex;
     flex-direction: column;
     margin-top: 77px;
-    margin-left: 48px;
-    flex: 1;
+    margin-left: auto;
+    margin-right: 160px;
 `;
 
 export const BookInfoSection = styled.section`
     margin-bottom: 32px;
     margin-left: 35px;
+    
 `;
 
 export const BookTitle = styled.div`
@@ -278,6 +279,13 @@ export const AiTopicQuestion = styled.div`
     margin-bottom: 16px;
 `;
 
+export const AiIntro = styled.div`
+    ${typography.bodySmall};
+    color: ${colors.grayDark};
+    margin-left: 35px;
+    width: 516px;
+`;
+
 export const AiCommentList = styled.div`
     display: flex;
     flex-direction: column;
@@ -292,18 +300,12 @@ export const AiCommentItem = styled.div`
     flex-direction: column;
 `;
 
-export const AiCommentHeader = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-`;
-
 export const AiCommentProfile = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    margin-bottom: 6px;
 `;
 
 export const AiCommentProfileIcon = styled.img`
@@ -319,52 +321,12 @@ export const AiCommentAuthor = styled.div`
     color: ${colors.black};
 `;
 
-export const AiMoreWrapper = styled.div`
-    position: relative;
-`;
-
-export const AiMoreIcon = styled.img`
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-`;
-
-export const AiMoreMenu = styled.div`
-    position: absolute;
-    right: 0;
-    top: 20px;
-    background-color: ${colors.white};
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    z-index: 100;
-    min-width: 72px;
-    overflow: hidden;
-`;
-
-export const AiMoreMenuItem = styled.button`
-    display: block;
-    width: 100%;
-    padding: 8px 12px;
-    text-align: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    ${typography.bodySmall};
-    font-size: 12px;
-    color: ${({ $danger }) => ($danger ? "#e53e3e" : colors.black)};
-`;
-
-export const AiMoreMenuDivider = styled.div`
-    height: 1px;
-    background-color: ${colors.grayLighter};
-    margin: 0 8px;
-`;
-
 export const AiCommentText = styled.div`
     ${typography.bodySmall};
     font-size: 13px;
     white-space: pre-wrap;
     color: ${colors.black};
+    padding: 9px;
 `;
 
 export const AiInputWrapper = styled.div`
