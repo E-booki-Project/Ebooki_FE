@@ -1,8 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import * as D from "../../styles/books/DetailStyle";
-import { getBook, getMyBookItems, toggleLike } from "../../api/book";
-import { getHighlights, getHighlightComments } from "../../api/reading";
+import { getBook, getMyBookItems, getBookTimeline, toggleLike } from "../../api/book";
 import { getDiscussion, getDiscussionComments, addDiscussionComment } from "../../api/discussion";
 import { getUserInfo } from "../../utils/authStorage";
 
@@ -137,52 +136,11 @@ function Detail() {
         }
     };
 
-    const currentUserId = getUserInfo()?.id;
-
     useEffect(() => {
         const fetchNotes = async () => {
-            if (!teamId) { setTimeline([]); return; }
             try {
-                const data = await getHighlights(Number(bookId), Number(teamId));
-                const allHighlights = data?.highlights ?? [];
-
-                // 내 하이라이트만 추출
-                const myHighlights = allHighlights.filter(
-                    (h) => Number(h.userId) === Number(currentUserId)
-                );
-
-                // 내 하이라이트 각각의 댓글 조회
-                const commentResults = await Promise.all(
-                    myHighlights.map((h) => getHighlightComments(h.id).catch(() => []))
-                );
-
-                // 내가 쓴 댓글만 수집
-                const myCommentItems = [];
-                commentResults.forEach((result) => {
-                    const list = Array.isArray(result) ? result : (result?.data ?? []);
-                    list
-                        .filter((c) => Number(c.userId) === Number(currentUserId))
-                        .forEach((c) => {
-                            myCommentItems.push({
-                                type: "COMMENT",
-                                text: c.text,
-                                createdAt: c.createdAt,
-                                userId: Number(c.userId),
-                                page: null,
-                            });
-                        });
-                });
-
-                setTimeline([
-                    ...myHighlights.map((h) => ({
-                        type: "HIGHLIGHT",
-                        text: h.text,
-                        createdAt: h.createdAt,
-                        userId: Number(h.userId),
-                        page: h.spineIndex,
-                    })),
-                    ...myCommentItems,
-                ]);
+                const data = await getBookTimeline(bookId);
+                setTimeline(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error(error);
             }
@@ -217,11 +175,10 @@ function Detail() {
     }, [bookId, teamId, newRatingFromNav]);
 
     const visibleItems = useMemo(() => {
-        const myItems = timeline.filter((item) => Number(item.userId) === Number(currentUserId));
-        if (activeTab === "highlight") return myItems.filter((item) => item.type === "HIGHLIGHT");
-        if (activeTab === "comment") return myItems.filter((item) => item.type === "COMMENT");
-        return [...myItems].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    }, [timeline, activeTab, currentUserId]);
+        if (activeTab === "highlight") return timeline.filter((item) => item.type === "HIGHLIGHT");
+        if (activeTab === "comment") return timeline.filter((item) => item.type === "COMMENT");
+        return [...timeline].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }, [timeline, activeTab]);
 
     const handleTabClick = (tab) => {
         setActiveTab((prev) => (prev === tab ? null : tab));
@@ -360,9 +317,9 @@ function Detail() {
                             const topics = [discussion?.topic1, discussion?.topic2, discussion?.topic3].filter(Boolean);
                             if (topics.length === 0) {
                                 return (
-                                    <D.AiEmptyState>
+                                    <D.EmptyState>
                                         {discussion?.message || "팀원 모두가 완독하면 AI가 토론 주제를 제안해드려요."}
-                                    </D.AiEmptyState>
+                                    </D.EmptyState>
                                 );
                             }
                             return (
@@ -380,6 +337,14 @@ function Detail() {
                                 </D.AiTopicList>
                             );
                         })()
+                    ) : paginatedItems.length === 0 ? (
+                        <D.EmptyState>
+                            {activeTab === "highlight"
+                                ? "하이라이트가 없습니다."
+                                : activeTab === "comment"
+                                    ? "댓글이 없습니다."
+                                    : "아직 작성한 메모가 없습니다."}
+                        </D.EmptyState>
                     ) : (
                         <D.NoteList>
                             {paginatedItems.map((item) => {
