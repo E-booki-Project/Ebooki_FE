@@ -162,8 +162,9 @@ function Detail() {
         setNotePage(1);
     };
 
-    const handlePostDiscussionComment = async (text, topicNo) => {
+    const handlePostDiscussionComment = async (text, topicIndex) => {
         if (!text) return;
+        const topicNo = topicIndex + 1; // 서버는 topicNo를 1, 2, 3으로 받음
         // discussionId를 못 받아온 책+팀(백엔드 미반영 케이스)을 위한 안전망: 화면에만 추가
         if (!discussionId) {
             setDiscussionComments((prev) => [
@@ -306,7 +307,7 @@ function Detail() {
                                             key={index}
                                             question={question}
                                             index={index}
-                                            comments={discussionComments.filter((c) => c.topicNo === index)}
+                                            comments={discussionComments.filter((c) => c.topicNo === index + 1)}
                                             onSubmit={handlePostDiscussionComment}
                                         />
                                     ))}
