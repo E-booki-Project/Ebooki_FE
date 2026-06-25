@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import * as TL from "../../styles/team/TeamListStyle";
 import TeamCard from "../../components/TeamCard";
 import { getTeamList } from "../../api/team";
@@ -11,7 +12,9 @@ const USER_COLOR_MAP = {
 };
 
 function TeamList() {
+    const navigate = useNavigate();
     const [teams, setTeams] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchTeams = async () => {
@@ -35,10 +38,25 @@ function TeamList() {
                 setTeams(mapped);
             } catch (error) {
                 alert(error.response?.data?.message || "팀 목록을 불러오는데 실패했습니다.");
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchTeams();
     }, []);
+
+    if (!isLoading && teams.length === 0) {
+        return (
+            <TL.TeamList>
+                <TL.EmptyState>
+                    아직 소속된 팀이 없어요. 책을 골라 팀을 만들어보세요!
+                    <TL.EmptyStateButton type="button" onClick={() => navigate("/books")}>
+                        도서 리스트로 가기
+                    </TL.EmptyStateButton>
+                </TL.EmptyState>
+            </TL.TeamList>
+        );
+    }
 
     return (
         <TL.TeamList>

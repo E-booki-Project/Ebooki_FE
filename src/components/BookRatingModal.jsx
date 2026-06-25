@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import * as BR from "../styles/components/BookRatingModalStyle";
 import { patchRating } from "../api/rating";
+import { getNextRecommendation } from "../api/recommend";
 import { getUserInfo } from "../utils/authStorage";
 import close from "../assets/images/X.png";
 import star from "../assets/images/star.png";
@@ -8,17 +9,17 @@ import starFull from "../assets/images/star_full.png";
 
 const COUNT = 5;
 
-// TODO: 백엔드 추천 API 연동 전까지의 임시 데이터. 연동 후 patchRating 응답 또는
-// 별도 추천 API 호출 결과로 추천 도서명을 받아오도록 교체.
-const DUMMY_RECOMMENDATIONS = ["데미안", "어린 왕자", "1984", "노인과 바다", "위대한 개츠비"];
-
 function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
     const [rating, setRating] = useState(initialRating ?? 0);
     const [recommendation, setRecommendation] = useState(null);
 
-    const handleRecommendClick = () => {
-        const dummy = DUMMY_RECOMMENDATIONS[Math.floor(Math.random() * DUMMY_RECOMMENDATIONS.length)];
-        setRecommendation(dummy);
+    const handleRecommendClick = async () => {
+        try {
+            const data = await getNextRecommendation(bookId);
+            setRecommendation(data?.title ?? "");
+        } catch (error) {
+            alert(error.response?.data?.message || "도서 추천을 받아오는데 실패했습니다.");
+        }
     };
 
     const getClickedRating = (_e, i) => i + 1;
