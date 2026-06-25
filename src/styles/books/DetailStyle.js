@@ -371,7 +371,7 @@ export const AiSendIcon = styled.img`
     cursor: pointer;
 `;
 
-export const AiEmptyState = styled.div`
+export const EmptyState = styled.div`
     ${typography.bodySmall};
     color: ${colors.grayDark};
     width: 516px;
