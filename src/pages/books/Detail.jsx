@@ -20,26 +20,6 @@ const formatNoteDate = (value) => {
     return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}  ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
-// 서버는 댓글에 토픽 구분이 없어, 어느 토픽 카드에서 썼는지를 commentId 기준으로
-// 로컬에 기억해뒀다가 새로고침 후에도 같은 토픽 밑에 보이도록 함
-const TOPIC_MAP_KEY = "ebookiDiscussionTopicMap";
-
-const loadTopicMap = () => {
-    try {
-        return JSON.parse(localStorage.getItem(TOPIC_MAP_KEY) || "{}");
-    } catch {
-        return {};
-    }
-};
-
-const saveTopicIndex = (commentId, topicIndex) => {
-    const map = loadTopicMap();
-    map[commentId] = topicIndex;
-    localStorage.setItem(TOPIC_MAP_KEY, JSON.stringify(map));
-};
-
-// 책+팀당 토론 댓글 스레드는 백엔드상 하나뿐이라, 어떤 토픽 카드에서 작성했는지를
-// topicIndex로 태깅해 화면에서만 토픽별로 분리해서 보여줌
 function AiTopicCard({ question, index, comments, onSubmit }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [commentText, setCommentText] = useState("");
@@ -154,10 +134,7 @@ function Detail() {
                 setDiscussionId(id);
                 if (id) {
                     const commentData = await getDiscussionComments(id);
-                    const topicMap = loadTopicMap();
-                    setDiscussionComments(
-                        (commentData?.comments ?? []).map((c) => ({ ...c, topicIndex: topicMap[c.commentId] ?? 0 }))
-                    );
+                    setDiscussionComments(Object.values(commentData?.commentsByTopic ?? {}).flat());
                 } else {
                     setDiscussionComments([]);
                 }
@@ -185,7 +162,7 @@ function Detail() {
         setNotePage(1);
     };
 
-    const handlePostDiscussionComment = async (text, topicIndex) => {
+    const handlePostDiscussionComment = async (text, topicNo) => {
         if (!text) return;
         // discussionId를 못 받아온 책+팀(백엔드 미반영 케이스)을 위한 안전망: 화면에만 추가
         if (!discussionId) {
@@ -197,15 +174,14 @@ function Detail() {
                     profileImage: getUserInfo()?.profileImage ?? null,
                     text,
                     createdAt: new Date().toISOString(),
-                    topicIndex,
+                    topicNo,
                 },
             ]);
             return;
         }
         try {
-            const newComment = await addDiscussionComment(discussionId, text);
-            saveTopicIndex(newComment.commentId, topicIndex);
-            setDiscussionComments((prev) => [...prev, { ...newComment, topicIndex }]);
+            const newComment = await addDiscussionComment(discussionId, text, topicNo);
+            setDiscussionComments((prev) => [...prev, newComment]);
         } catch (error) {
             alert(error.response?.data?.message || "댓글 작성에 실패했습니다.");
         }
@@ -330,7 +306,7 @@ function Detail() {
                                             key={index}
                                             question={question}
                                             index={index}
-                                            comments={discussionComments.filter((c) => c.topicIndex === index)}
+                                            comments={discussionComments.filter((c) => c.topicNo === index)}
                                             onSubmit={handlePostDiscussionComment}
                                         />
                                     ))}

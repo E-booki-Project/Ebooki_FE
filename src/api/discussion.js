@@ -10,7 +10,7 @@ export const getDiscussionComments = async (discussionId) => {
     return response.data;
 };
 
-export const addDiscussionComment = async (discussionId, text) => {
-    const response = await axiosInstance.post(`/api/discussions/${discussionId}/comments`, { text });
+export const addDiscussionComment = async (discussionId, text, topicNo) => {
+    const response = await axiosInstance.post(`/api/discussions/${discussionId}/comments`, { text, topicNo });
     return response.data;
 };
