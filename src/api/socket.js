@@ -7,6 +7,11 @@ const WS_URL = BASE_URL.replace(/^https?/, "wss");
 let stompClient = null;
 
 export const connectSocket = ({ teamId, bookId, onHighlight }) => {
+    if (stompClient) {
+        stompClient.deactivate();
+        stompClient = null;
+    }
+
     const token = getAccessToken();
 
     stompClient = new Client({
