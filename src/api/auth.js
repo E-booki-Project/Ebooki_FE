@@ -25,6 +25,16 @@ export const kakaoLogin = async (code) => {
     return response.data;
 };
 
+export const naverLogin = async (code, state) => {
+    const response = await axiosInstance.get("/auth/login/naver", { params: { code, state } });
+    return response.data;
+};
+
+export const googleLogin = async (code) => {
+    const response = await axiosInstance.get("/auth/login/google", { params: { code } });
+    return response.data;
+};
+
 export const findpassword = async () => {};
 
 export const deleteAccount = async () => {

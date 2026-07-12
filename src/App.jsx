@@ -23,6 +23,8 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import Signin from "./pages/auth/Signin";
 import Signup from "./pages/auth/Signup";
 import KakaoCallback from "./pages/auth/KakaoCallback";
+import NaverCallback from "./pages/auth/NaverCallback";
+import GoogleCallback from "./pages/auth/GoogleCallback";
 
 import Detail from "./pages/books/Detail";
 import DetailDefault from "./pages/books/DetailDefault";
@@ -56,6 +58,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgotpassword" element={<ForgotPassword />} />
                 <Route path="/auth/login/kakao" element={<KakaoCallback />} />
+                <Route path="/auth/login/naver" element={<NaverCallback />} />
+                <Route path="/auth/login/google" element={<GoogleCallback />} />
 
                 {/* 헤더 있는 페이지 */}
                 <Route element={<AppLayout />}>

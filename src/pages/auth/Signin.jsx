@@ -29,6 +29,19 @@ function Signin() {
         window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${key}&redirect_uri=${redirectUri}&response_type=code`;
     };
 
+    const handleNaverLogin = () => {
+        const clientId = import.meta.env.VITE_NAVER_CLIENT_ID;
+        const redirectUri = import.meta.env.VITE_NAVER_REDIRECT_URI;
+        const state = Math.random().toString(36).substring(2);
+        window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+    };
+
+    const handleGoogleLogin = () => {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+        window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+    };
+
     const [form, setForm] = useState({
         email: "",
         password: "",
@@ -179,8 +192,8 @@ function Signin() {
             <S.SocialContainer>
                 <S.Title>소셜 로그인</S.Title>
                 <S.IconWrapper>
-                    <S.SocialIcon src={google} alt="google" />
-                    <S.SocialIcon src={naver} alt="naver" />
+                    <S.SocialIcon src={google} alt="google" onClick={handleGoogleLogin} style={{ cursor: "pointer" }} />
+                    <S.SocialIcon src={naver} alt="naver" onClick={handleNaverLogin} style={{ cursor: "pointer" }} />
                     <S.SocialIcon src={kakao} alt="kakao" onClick={handleKakaoLogin} style={{ cursor: "pointer" }} />
                 </S.IconWrapper>
             </S.SocialContainer>
