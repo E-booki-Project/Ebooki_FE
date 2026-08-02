@@ -30,6 +30,7 @@ import Detail from "./pages/books/Detail";
 import DetailDefault from "./pages/books/DetailDefault";
 import List from "./pages/books/List";
 import Reader from "./pages/books/Reader";
+import Recommend from "./pages/books/Recommend";
 
 import Invite from "./pages/team/Invite";
 import EditTeam from "./pages/team/EditTeam";
@@ -67,6 +68,7 @@ function App() {
                     <Route path="/reader/:teamId/:bookId" element={<Reader />} />
                     <Route path="/books/detail/:bookId" element={<Detail />} />
                     <Route path="/books/info/:bookId" element={<DetailDefault />} />
+                    <Route path="/recommend" element={<Recommend />} />
 
                     <Route path="/invite/:bookId" element={<Invite />} />
                     <Route path="/edit/:teamId" element={<EditTeam />} />

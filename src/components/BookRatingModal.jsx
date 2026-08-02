@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as BR from "../styles/components/BookRatingModalStyle";
 import { patchRating } from "../api/rating";
-import { getNextRecommendation } from "../api/recommend";
 import { getUserInfo } from "../utils/authStorage";
 import close from "../assets/images/X.png";
 import star from "../assets/images/star.png";
@@ -10,16 +10,11 @@ import starFull from "../assets/images/star_full.png";
 const COUNT = 5;
 
 function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
+    const navigate = useNavigate();
     const [rating, setRating] = useState(initialRating ?? 0);
-    const [recommendation, setRecommendation] = useState(null);
 
-    const handleRecommendClick = async () => {
-        try {
-            const data = await getNextRecommendation(bookId);
-            setRecommendation(data?.title ?? "");
-        } catch (error) {
-            alert(error.response?.data?.message || "도서 추천을 받아오는데 실패했습니다.");
-        }
+    const handleRecommendClick = () => {
+        navigate(`/recommend?bookId=${bookId}`);
     };
 
     const getClickedRating = (_e, i) => i + 1;
@@ -79,15 +74,9 @@ function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
                         })}
                     </BR.RatingWrapper>
 
-                    {recommendation ? (
-                        <BR.RecommendText>
-                            <BR.RecommendTitle>{recommendation}</BR.RecommendTitle> 도서를 추천드립니다.
-                        </BR.RecommendText>
-                    ) : (
-                        <BR.RecommendButton type="button" onClick={handleRecommendClick}>
-                            비슷한 도서 추천받기
-                        </BR.RecommendButton>
-                    )}
+                    <BR.RecommendButton type="button" onClick={handleRecommendClick}>
+                        비슷한 도서 추천받기 →
+                    </BR.RecommendButton>
                 </BR.Content>
             </BR.BookRating>
         </BR.Overlay>
