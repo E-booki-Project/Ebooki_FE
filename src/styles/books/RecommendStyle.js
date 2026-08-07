@@ -40,7 +40,7 @@ export const BookList = styled.div`
     display: flex;
     gap: 12px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding: 4px;
 
     &::-webkit-scrollbar {
         height: 4px;
@@ -56,11 +56,15 @@ export const BookList = styled.div`
 
 export const BookCard = styled.div`
     flex-shrink: 0;
-    width: 100px;
+    width: 110px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     cursor: pointer;
+    border-radius: 8px;
+    padding: 6px;
+    outline: ${({ $selected }) => ($selected ? `2px solid ${colors.coral}` : "none")};
+    transition: outline 0.15s;
 
     &:hover {
         opacity: 0.85;
@@ -68,8 +72,8 @@ export const BookCard = styled.div`
 `;
 
 export const BookCover = styled.img`
-    width: 100px;
-    height: 146px;
+    width: 98px;
+    height: 143px;
     object-fit: cover;
     border-radius: 4px;
     background-color: ${colors.grayMedium};
@@ -77,28 +81,24 @@ export const BookCover = styled.img`
 
 export const BookTitle = styled.div`
     ${typography.bodySmall};
+    font-weight: 600;
     margin-top: 6px;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 100px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-width: 98px;
 `;
 
-export const BookRating = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 2px;
-`;
-
-export const StarIcon = styled.img`
-    width: 14px;
-    height: 14px;
-`;
-
-export const RatingText = styled.span`
+export const BookAuthor = styled.div`
     ${typography.bodySmall};
     color: ${colors.grayDark};
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 98px;
 `;
 
 /* 도서관 목록 패널 */
@@ -138,9 +138,12 @@ export const LibraryItem = styled.div`
     padding: 16px 24px;
     border-bottom: 1px solid ${colors.grayLighter};
     cursor: pointer;
+    background-color: ${({ $selected }) => ($selected ? "rgba(255, 107, 107, 0.08)" : "transparent")};
+    box-shadow: ${({ $selected }) => ($selected ? `inset 3px 0 0 ${colors.coral}` : "none")};
+    transition: background-color 0.15s;
 
     &:hover {
-        background-color: ${colors.grayLighter};
+        background-color: ${({ $selected }) => ($selected ? "rgba(255, 107, 107, 0.12)" : colors.grayLighter)};
     }
 `;
 

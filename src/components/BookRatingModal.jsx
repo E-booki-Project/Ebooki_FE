@@ -75,7 +75,7 @@ function BookRatingModal({ onClose, onRated, initialRating, bookId }) {
                     </BR.RatingWrapper>
 
                     <BR.RecommendButton type="button" onClick={handleRecommendClick}>
-                        비슷한 도서 추천받기 →
+                        비슷한 도서 추천받기
                     </BR.RecommendButton>
                 </BR.Content>
             </BR.BookRating>
