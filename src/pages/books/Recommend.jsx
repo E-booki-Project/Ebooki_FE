@@ -36,12 +36,15 @@ function Recommend() {
     const [libraries, setLibraries] = useState([]);
     const [selectedLibrary, setSelectedLibrary] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [mapReady, setMapReady] = useState(false);
+    const [loadingBooks, setLoadingBooks] = useState(false);
+    const [loadingLibraries, setLoadingLibraries] = useState(false);
+    const [booksError, setBooksError] = useState(false);
 
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const markersRef = useRef([]); // [{marker, lib}]
     const selectedMarkerRef = useRef(null);
-    const mapReadyRef = useRef(false);
     const selectedItemRef = useRef(null);
 
     const totalPages = Math.ceil(libraries.length / ITEMS_PER_PAGE);
@@ -75,7 +78,7 @@ function Recommend() {
             center: new kakao.maps.LatLng(37.5665, 126.978),
             level: 8,
         });
-        mapReadyRef.current = true;
+        setMapReady(true);
     };
 
     const fetchLibraries = (isbn13) => {
@@ -83,13 +86,17 @@ function Recommend() {
         setCurrentPage(1);
         setSelectedLibrary(null);
         selectedMarkerRef.current = null;
+        setLoadingLibraries(true);
         getLibrariesByIsbn(isbn13)
             .then((data) => setLibraries(data?.libraries ?? []))
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setLoadingLibraries(false));
     };
 
     useEffect(() => {
         if (!bookId) return;
+        setLoadingBooks(true);
+        setBooksError(false);
         getNextRecommendation(bookId)
             .then((data) => {
                 const bookList = data?.books ?? [];
@@ -99,12 +106,13 @@ function Recommend() {
                     fetchLibraries(bookList[0].isbn13);
                 }
             })
-            .catch(console.error);
+            .catch(() => setBooksError(true))
+            .finally(() => setLoadingBooks(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookId]);
 
     useEffect(() => {
-        if (!mapReadyRef.current || !window.kakao?.maps || libraries.length === 0) return;
+        if (!mapReady || !window.kakao?.maps || libraries.length === 0) return;
         const { kakao } = window;
         const map = mapInstanceRef.current;
 
@@ -146,7 +154,7 @@ function Recommend() {
         });
 
         map.setBounds(bounds);
-    }, [libraries]);
+    }, [libraries, mapReady]);
 
     useEffect(() => {
         if (selectedLibrary && selectedItemRef.current) {
@@ -155,7 +163,7 @@ function Recommend() {
     }, [selectedLibrary]);
 
     const handleLibraryClick = (lib) => {
-        if (!mapReadyRef.current || !window.kakao?.maps) return;
+        if (!mapReady || !window.kakao?.maps) return;
         const { kakao } = window;
         const map = mapInstanceRef.current;
 
@@ -187,54 +195,72 @@ function Recommend() {
 
                 <S.RecommendPanel>
                     <S.PanelTitle>추천 도서</S.PanelTitle>
-                    <S.BookList>
-                        {books.map((book) => (
-                            <S.BookCard
-                                key={book.isbn13}
-                                $selected={selectedBook?.isbn13 === book.isbn13}
-                                onClick={() => {
-                                    setSelectedBook(book);
-                                    fetchLibraries(book.isbn13);
-                                }}
-                            >
-                                <S.BookCover src={book.bookImageURL} alt={book.title} />
-                                <S.BookTitle>{book.title}</S.BookTitle>
-                                <S.BookAuthor>{book.author}</S.BookAuthor>
-                            </S.BookCard>
-                        ))}
-                    </S.BookList>
+                    {loadingBooks ? (
+                        <S.SpinnerWrapper><S.Spinner /></S.SpinnerWrapper>
+                    ) : booksError ? (
+                        <S.EmptyMessage>추천 도서를 불러오지 못했습니다.</S.EmptyMessage>
+                    ) : (
+                        <S.BookList>
+                            {books.map((book) => (
+                                <S.BookCard
+                                    key={book.isbn13}
+                                    $selected={selectedBook?.isbn13 === book.isbn13}
+                                    onClick={() => {
+                                        setSelectedBook(book);
+                                        fetchLibraries(book.isbn13);
+                                    }}
+                                >
+                                    <S.BookCover src={book.bookImageURL} alt={book.title} />
+                                    <S.BookTitle>{book.title}</S.BookTitle>
+                                    <S.BookAuthor>{book.author}</S.BookAuthor>
+                                </S.BookCard>
+                            ))}
+                        </S.BookList>
+                    )}
                 </S.RecommendPanel>
 
                 <S.LibraryPanel>
-                    <S.LibraryList>
-                        {pagedLibraries.map((lib) => (
-                            <S.LibraryItem
-                                key={lib.libCode}
-                                ref={selectedLibrary?.libCode === lib.libCode ? selectedItemRef : null}
-                                $selected={selectedLibrary?.libCode === lib.libCode}
-                                onClick={() => handleLibraryClick(lib)}
-                            >
-                                <S.LibraryName>{lib.libName}</S.LibraryName>
-                                <S.LibraryAddress>{lib.address}</S.LibraryAddress>
-                            </S.LibraryItem>
-                        ))}
-                    </S.LibraryList>
+                    {loadingLibraries ? (
+                        <S.SpinnerWrapper><S.Spinner /></S.SpinnerWrapper>
+                    ) : (
+                        <>
+                            <S.LibraryList>
+                                {pagedLibraries.length === 0 ? (
+                                    <S.EmptyMessage>보유 도서관 정보가 없습니다.</S.EmptyMessage>
+                                ) : (
+                                    pagedLibraries.map((lib) => (
+                                        <S.LibraryItem
+                                            key={lib.libCode}
+                                            ref={selectedLibrary?.libCode === lib.libCode ? selectedItemRef : null}
+                                            $selected={selectedLibrary?.libCode === lib.libCode}
+                                            onClick={() => handleLibraryClick(lib)}
+                                        >
+                                            <S.LibraryName>{lib.libName}</S.LibraryName>
+                                            <S.LibraryAddress>{lib.address}</S.LibraryAddress>
+                                        </S.LibraryItem>
+                                    ))
+                                )}
+                            </S.LibraryList>
 
-                    <S.Pagination>
-                        {getPaginationItems(currentPage, totalPages).map((item, i) =>
-                            item === "..." ? (
-                                <S.Ellipsis key={`ellipsis-${i}`}>...</S.Ellipsis>
-                            ) : (
-                                <S.PageButton
-                                    key={item}
-                                    $active={currentPage === item}
-                                    onClick={() => setCurrentPage(item)}
-                                >
-                                    {item}
-                                </S.PageButton>
-                            ),
-                        )}
-                    </S.Pagination>
+                            {totalPages > 1 && (
+                                <S.Pagination>
+                                    {getPaginationItems(currentPage, totalPages).map((item, i) =>
+                                        item === "..." ? (
+                                            <S.Ellipsis key={`ellipsis-${i}`}>...</S.Ellipsis>
+                                        ) : (
+                                            <S.PageButton
+                                                key={item}
+                                                $active={currentPage === item}
+                                                onClick={() => setCurrentPage(item)}
+                                            >
+                                                {item}
+                                            </S.PageButton>
+                                        ),
+                                    )}
+                                </S.Pagination>
+                            )}
+                        </>
+                    )}
                 </S.LibraryPanel>
             </S.MapSection>
         </S.Page>

@@ -1,6 +1,10 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { typography } from "../typography";
 import { colors } from "../colors";
+
+const spin = keyframes`
+    to { transform: rotate(360deg); }
+`;
 
 export const Page = styled.div`
     position: relative;
@@ -21,9 +25,9 @@ export const MapContainer = styled.div`
 /* 추천 도서 패널 */
 export const RecommendPanel = styled.div`
     position: absolute;
-    bottom: 40px;
+    bottom: 80px;
     left: 40px;
-    width: 460px;
+    width: fit-content;
     background: ${colors.white};
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -106,7 +110,7 @@ export const LibraryPanel = styled.div`
     position: absolute;
     top: 40px;
     right: 40px;
-    bottom: 40px;
+    bottom: 80px;
     width: 320px;
     background: ${colors.white};
     display: flex;
@@ -191,4 +195,29 @@ export const Ellipsis = styled.span`
     ${typography.bodySmall};
     color: ${colors.grayDark};
     padding: 0 2px;
+`;
+
+export const SpinnerWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px 0;
+`;
+
+export const Spinner = styled.div`
+    width: 32px;
+    height: 32px;
+    border: 3px solid ${colors.grayLighter};
+    border-top-color: ${colors.coral};
+    border-radius: 50%;
+    animation: ${spin} 0.7s linear infinite;
+`;
+
+export const EmptyMessage = styled.div`
+    ${typography.bodySmall};
+    color: ${colors.grayDark};
+    text-align: center;
+    padding: 40px 24px;
+    flex: 1;
 `;
